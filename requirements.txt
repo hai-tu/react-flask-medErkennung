@@ -1,1 +1,4 @@
-material-ui
+flask
+python-dotenv
+numpy
+opencv-python
