@@ -4,19 +4,20 @@
 
 
 .Live-Section {
-  background-color: #282c34;
+  background-color: #91cad4;
   min-height: 100vh;
   width:30%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
 }
 
 .streaming {
   width:90%;
+  top:5px;
+  padding:0 0 1em 0;
   position: relative;
   float: left;
 }
