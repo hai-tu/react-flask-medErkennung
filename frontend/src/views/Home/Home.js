@@ -1,15 +1,9 @@
 import React, {useState, useEffect, useRef} from 'react';
-//import {Container, Button, Box, Typography} from '@material-ui/core'
-//import { AppBar, Toolbar, IconButton, Grid, Paper} from '@material-ui/core';
-//import MenuIcon from '@material-ui/icons/Menu';
+import {Container, Button, Box, Typography} from '@material-ui/core'
+import { AppBar, Toolbar, IconButton, Grid, Paper} from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import './App.css';
-import Home from './views/Home/Home';
-import GroundTruth from './views/GroundTruth/GroundTruth';
-import NavBar from './components/NavBar/NavBar';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { Route, Switch, Redirect } from 'react-router-dom';
-
 
 const useStyles = makeStyles((theme) => ({
   button: {
@@ -37,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function App() {
+function Home() {
   const videoRef = useRef();
   const photoRef = useRef();
   const classes = useStyles();
@@ -113,40 +107,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* <AppBar position="static">
-        <Toolbar>
-          <div>
-            <Router>
-              <NavBar />
-              <Switch>
-                <Route exact path="/Home" component={Home} />
-                <Route exact path="/">
-                  <Redirect to="/Home" />
-                </Route>
-                <Route exact path="/About" component={About} />
-              </Switch>
-            </Router>
-          </div>
-          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu"s>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            Med Erkennung
-          </Typography>
-          <Button color="inherit">Login</Button>
-        </Toolbar>
-      </AppBar> */}
-      <Router>
-        <NavBar />
-        <Switch>
-          <Route exact path="/Home" component={Home} />
-          <Route exact path="/">
-            <Redirect to="/Home" />
-          </Route>
-          <Route exact path="/About" component={GroundTruth} />
-        </Switch>
-      </Router>
-      {/* <Box bgcolor="lightblue" display="flex" flexDirection="row">
+      <Box bgcolor="lightblue" display="flex" flexDirection="row">
         <div className="Live-Section" >
           <video className="streaming" ref={videoRef} onCanPlay={() => playCameraStream()} id="video" />
           <Button className={classes.button} variant="contained" color="primary" onClick={takePhoto}>Take Picture</Button>
@@ -187,9 +148,9 @@ function App() {
             </Grid>
           </div>
         </div>
-      </Box> */}
+      </Box>
     </div>
   );
 }
 
-export default App;
+export default Home;
