@@ -10,11 +10,19 @@ import Task from './task';
 import {initialData, saved_data} from './initial-data';
 import Column from './column';
 import { teal } from '@material-ui/core/colors';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ListItemText from '@material-ui/core/ListItemText';
+import Checkbox from '@material-ui/core/Checkbox';
+//import CommentIcon from '@material-ui/icons/Comment';
+
 
 const useStyles = makeStyles((theme) => ({
   button: {
-    margin: '0 0 1em 0',
-    width: '50%',
+    margin: '1em 0 1em 0',
+    width: '20%',
     height:'40px',
   },
   menuButton: {
@@ -34,6 +42,11 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
+  },
+  root: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: theme.palette.background.paper,
   },
 }));
 
@@ -64,10 +77,25 @@ function GroundTruth() {
   const [qrCode, setqrCode] = useState('PatienID');
   const [savedData, setSavedData] = useState(saved_data);
   const [patient, setPatient] = useState(false)
+  const [checked, setChecked] = useState([]);
+  const [patientList, setPatientList] = useState([]);
 
   const [characters, updateCharacters] = useState(med_list);
   const [medBox, updateMedBox] = useState(finalSpaceCharacters);
   const [state, setState] = useState(initialData)
+
+  useEffect(async function getPatientList() {
+    // Update the document title using the browser API
+    const response = await fetch('/getPatientID', {
+      method: "GET"
+    })
+    console.log("initial load")
+    if (response.status === 200) {
+      const text = await response.json()
+      console.log(text)
+      setPatientList(text.list)
+    }
+  }, []);
 
   function handleOnDragEnd(result) {
     if (!result.destination) return;
@@ -180,8 +208,6 @@ function GroundTruth() {
       } else {
         alert("somtething wrong");
       }
-
-      
     }
   }
 
@@ -233,9 +259,9 @@ function GroundTruth() {
     // }
     // console.log(saved_data1)
     // console.log(savedData)
-    if (source.droppableId == "column-1" && !destination) {
+    if (source.droppableId === "column-1" && !destination) {
       return;
-    } else if (source.droppableId != "column-1" && !destination) {
+    } else if (source.droppableId !== "column-1" && !destination) {
       const firstStart = state.columns[source.droppableId]
       //console.log("destination hier: ", destination)
       //return;
@@ -271,7 +297,7 @@ function GroundTruth() {
       // return
       
       
-    } else if (source.droppableId != "column-1" && destination) {
+    } else if (source.droppableId !== "column-1" && destination) {
       return;
     }
 
@@ -388,17 +414,109 @@ function GroundTruth() {
     // TODO: reorder our column
   };
   
-  function saveData() {
+  async function saveData() {
   
     //console.log("hier is", JSON.stringify(savedData))
     console.log(qrCode)
     const toSave = {}
     toSave[qrCode] = savedData
-    fetch('/saveData', {
+    const response = await fetch('/saveData', {
       method: "POST",
       header: {'Content-Type': 'application/json'},
       body: JSON.stringify(toSave)
     })
+
+    if (response.status === 200) {
+      const text = await response.json()
+      console.log(text)
+      setPatientList(text.list)
+    }
+  }
+
+  const handleToggle = (value) => () => {
+    const currentIndex = checked.indexOf(value);
+    const newChecked = [...checked];
+
+    if (currentIndex === -1) {
+      newChecked.push(value);
+    } else {
+      newChecked.splice(currentIndex, 1);
+    }
+
+    setChecked(newChecked);
+  };
+
+  const loadData = async () => {
+    if (checked.length > 1) {
+      alert("Please select only one file to load")
+      return
+    }
+    //console.log(checked.length)
+    const data = {}
+    data.fileName = checked[0]
+    console.log("data", data)
+    const response = await fetch('/loadPatientFile', {
+      method: "POST",
+      body: JSON.stringify(data)
+    })
+
+    if (response.status === 200) {
+      const text = await response.json()
+      const qrCodeID = Object.keys(text)[0]
+      setqrCode(qrCodeID)
+      setSavedData(text[qrCodeID])
+      const output = text[qrCodeID]
+      console.log("text", text)
+      console.log("qrCodeID", qrCodeID)
+      console.log("output", output)
+      let newColumns = state.columns
+      
+      for (const [key, value] of Object.entries(output)) {
+        //console.log(key,value)
+        //console.log("state is", state)
+        //const firstColumn = state.columns[key]
+        let newTaskIds = []
+        for (const med of value["taskIds"]) {
+          
+          //state.columns[key]["taskIds"].push(med.med)
+          newTaskIds.push(med.med)
+          const dataBase = state.columns[key]["data"]
+          state[dataBase][med.med].amount = med.amount
+          //console.log("med hier", state[dataBase][med.med].amount)
+          //state.columns[key]["data"][med.med].amount = med.amount
+          //medList.push(med.med)
+        }
+        console.log("newColumns1", newColumns[key])
+        newColumns[key]["taskIds"] = newTaskIds
+      }
+      console.log("newColumns", newColumns)
+      const newState = {
+        ...state,
+        columns: newColumns,
+      };
+      setState(newState)
+    } else {
+      alert("somtething wrong");
+    }
+  }
+
+  const deleteData = async function() {
+    console.log(checked)
+    const data = {}
+    data.fileName = checked
+    const response = await fetch('/deletePatientFile', {
+      method: "POST",
+      body: JSON.stringify(data)
+    })
+
+    if (response.status === 200) {
+      const text = await response.json()
+      //console.log(text)
+      setPatientList(text.list)
+    }
+    setChecked([])
+    //setState(initialData)
+    
   }
 
   return (
@@ -406,20 +524,20 @@ function GroundTruth() {
       <Box bgcolor="lightblue" display="flex" flexDirection="row">
         <div className="Live-Section" >
           <video className="streaming" ref={videoRef} onCanPlay={() => playCameraStream()} id="video" />
-          <Button className={classes.button} variant="contained" color="primary" onClick={detect}>Take Picture</Button>
+          <Button className={classes.button} variant="contained" color="primary" onClick={detect}>Scan</Button>
           <canvas className="streaming" ref={photoRef} />
         </div>
-        <div className="Result" >
-          <div className="GroundTruth">
+        <div className="MedBox" >
+          <div className="MedList">
             <Typography variant="h6" className={classes.title}>
               {qrCode}
             </Typography>
             <DragDropContext onDragEnd={onDragEnd}>
-            <Container>
+              <Container>
                 {state.columnMed.map(columnId => {
                   const column = state.columns[columnId];
                   const tasks = column.taskIds.map(
-                    taskId => state.tasks[taskId],
+                    taskId => state.medList[taskId],
                   );
 
                   return <Column key={column.id} column={column} tasks={tasks} />;
@@ -438,7 +556,33 @@ function GroundTruth() {
             </DragDropContext>
           </div>
         </div>
-        <Button className={classes.button} variant="contained" color="primary" onClick={saveData}>Save File</Button>
+        <div className="lastColumn">
+          <Button className={classes.button} variant="contained" color="primary" onClick={saveData}>Save File</Button>
+          <div className="SavedData" >
+            <List className={classes.root}>
+              {patientList.map((value) => {
+                const labelId = `checkbox-list-label-${value}`;
+
+                return (
+                  <ListItem key={value} role={undefined} dense button onClick={handleToggle(value)}>
+                    <ListItemIcon>
+                      <Checkbox
+                        edge="start"
+                        checked={checked.indexOf(value) !== -1}
+                        tabIndex={-1}
+                        disableRipple
+                        inputProps={{ 'aria-labelledby': labelId }}
+                      />
+                    </ListItemIcon>
+                    <ListItemText id={labelId} primary={value} />
+                  </ListItem>
+                );
+              })}
+            </List>
+          </div>
+          <Button className={classes.button} variant="contained" color="primary" onClick={loadData}>Load File</Button>
+          <Button className={classes.button} variant="contained" color="primary" onClick={deleteData}>Delete File</Button>
+        </div>
       </Box>
     </div>
   );

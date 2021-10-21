@@ -146,48 +146,6 @@ function App() {
           <Route exact path="/About" component={GroundTruth} />
         </Switch>
       </Router>
-      {/* <Box bgcolor="lightblue" display="flex" flexDirection="row">
-        <div className="Live-Section" >
-          <video className="streaming" ref={videoRef} onCanPlay={() => playCameraStream()} id="video" />
-          <Button className={classes.button} variant="contained" color="primary" onClick={takePhoto}>Take Picture</Button>
-          <Button className={classes.button} variant="contained" color="primary" onClick={detect}>Detect</Button>
-          <canvas className="streaming" ref={photoRef} />
-        </div>
-        <div className="Result" >
-          <div className="GroundTruth">
-            <Typography variant="h6" className={classes.title}>
-              {qrCode}
-            </Typography>
-            <Grid container direction="column" >
-              {result.map((value) => (
-                <Grid key={value} item>
-                  <Paper className={classes.paper}>
-                    <ul>
-                      {value.map(name => <li key={name}> {name} </li>)}
-                    </ul>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </div>
-          <div className="Prediction">
-            <Typography variant="h6" className={classes.title}>
-              Prediction
-            </Typography>
-            <Grid container direction="column" >
-              {result.map((value) => (
-                <Grid key={value} item>
-                  <Paper className={classes.paper}>
-                    <ul>
-                      <li> prediction </li>
-                    </ul>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </div>
-        </div>
-      </Box> */}
     </div>
   );
 }

@@ -4,17 +4,17 @@ import { Droppable } from 'react-beautiful-dnd';
 import Task from './task';
 
 const Container = styled.div`
-  margin: 8px;
+  margin: 1px;
   border: 1px solid lightgrey;
   border-radius: 2px;
-  width: 400px;
+  width: 300px;
 
   display: flex;
   flex-direction: column;
 `;
-const Title = styled.h3`
+const Title = styled.h5`
   padding: 1px;
-  height: 10px;
+  height: 2px;
 `;
 const TaskList = styled.div`
   padding: 8px;
@@ -26,22 +26,26 @@ const TaskList = styled.div`
 
 export default function Column(props){
   return (
-    <Container>
+    <div>
       <Title>{props.column.title}</Title>
-      <Droppable droppableId={props.column.id}>
-        {(provided, snapshot) => (
-          <TaskList
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            isDraggingOver={snapshot.isDraggingOver}
-          >
-            {props.tasks.map((task, index) => (
-              <Task key={task.id} task={task} index={index} />
-            ))}
-            {provided.placeholder}
-          </TaskList>
-        )}
-      </Droppable>
-    </Container>
+      <Container>
+        {/* <Title>{props.column.title}</Title> */}
+        <Droppable droppableId={props.column.id}>
+          {(provided, snapshot) => (
+            <TaskList
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              isDraggingOver={snapshot.isDraggingOver}
+            >
+              {props.tasks.map((task, index) => (
+                <Task key={task.id} task={task} index={index} />
+              ))}
+              {provided.placeholder}
+            </TaskList>
+          )}
+        </Droppable>
+      </Container>    
+    </div>
+    
   );
 }

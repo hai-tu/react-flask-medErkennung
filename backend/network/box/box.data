@@ -1,0 +1,7 @@
+classes= 1
+train  = data/box_train.txt
+valid  = data/box_test.txt
+names = network/box/box.names
+backup = data/backup
+#eval=coco
+

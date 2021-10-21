@@ -1,0 +1,7 @@
+classes= 15
+train  = data/meds_train.txt
+valid  = data/meds_test.txt
+names = network/med/med.names
+backup = data/backup
+#eval=coco
+
