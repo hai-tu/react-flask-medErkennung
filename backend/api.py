@@ -62,6 +62,7 @@ def detectMed():
    #    barcodeData="test1"
    #    for barcode in barcodes:
    #       barcodeData = barcode.data.decode("utf-8")
+   
    result_folder = "data/io/result/med"
    for f in os.listdir(result_folder):
       os.remove(os.path.join(result_folder, f))
@@ -75,13 +76,23 @@ def detectMed():
             lines = f.readlines()
          med_list = []
          for line in lines:
+            text_splits = line.split()
+            available = False
             #box = {}
-            med = {}
-            med["id"] = line.split()[0]
-            med["percent"] = line.split()[5]
+            for each_med in med_list:
+               if text_splits[0] == each_med["id"]:
+                  each_med["amount"] += 1
+                  available = True
+            if not available:
+               med = {}
+               med["id"] = text_splits[0]
+               med["percent"] = text_splits[5]
+               med["amount"] = 1
+               med_list.append(med)
             #boxID = "box_" + str(i)
             #box[boxID] = med
-            med_list.append(med)
+            
+            #med_list.append(med)
          #fileName = "box" + str(i)
          #medBox[fileName] = med_list
          resultMed = {}
@@ -91,7 +102,7 @@ def detectMed():
          #medBox.append(med_list)
          i = i + 1
    print(medBox)
-   with open("data/groundtruth/PatienID_False") as f:
+   with open("data/groundtruth/PatienID") as f:
       ground_truth = json.load(f)
    gtruth = []
    for value in ground_truth.values():
@@ -106,12 +117,22 @@ def detectMed():
    result = []
    for i in range(len(gtruth)):
       interResult = True
-      for med in medBox[i]["detectedMed"]:
-         if med["id"] not in getAllMedID(gtruth[i]):
-            interResult = False
-            #result.append(False)
+      if len(medBox[i]["detectedMed"]) != len(gtruth[i]):
+         interResult = False
+      else:
+         for med in medBox[i]["detectedMed"]:
+            if med["id"] not in getAllMedID(gtruth[i]):
+               interResult = False
+               #result.append(False)
+            else:
+               for each_med in gtruth[i]:
+                  if each_med["id"] == med["id"]:
+                     if med["amount"] != each_med["amount"]:
+                        interResult = False
+               
       result.append(interResult)
    #print("result is", result)
+   print("Ground Truth", gtruth)
    for i, test in enumerate(result):
       medBox[i]["result"] = result[i]
    # print(gtruth)

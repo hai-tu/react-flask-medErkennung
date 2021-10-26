@@ -43,13 +43,14 @@ const useStyles = makeStyles((theme) => ({
   paper: (props) => ({
     height: 140,
     width: '80%',
-    border: `5px solid ${props.color}`,
+    // background: 'lightgreen',
+    // border: `5px solid ${props.color}`,
     marginBottom: 10
   }),
   gPaper: {
     height: 140,
     width: '80%',
-    border: '5px solid green',
+    // border: '5px solid white',
     marginBottom: 10
   },
   title: {
@@ -173,7 +174,7 @@ function Home() {
                 <Grid key={value} item>
                   <Paper className={classes.gPaper} >
                     <ul>
-                      {value.map(name => <li key={name.id}> {med_list_name[name.id]} </li>)}
+                      {value.map(name => <li key={name.id}> {med_list_name[name.id] + ":" + name.amount} </li>)}
                     </ul>
                   </Paper>
                 </Grid>
@@ -187,9 +188,9 @@ function Home() {
             <Grid container direction="column" >
               {result.map((value) => (
                 <Grid key={value} item>
-                  <Paper className={classes.paper} style={ value.result ? { border: '5px solid green' } : { border: '5px solid red' }}>
+                  <Paper className={classes.paper} style={ value.result ? { background: 'lightgreen' } : { background: 'orangered' }}>
                     <ul>
-                      {value.detectedMed.map(name => <li key={name.id}> {med_list_name[name.id]} </li>)}
+                      {value.detectedMed.map(name => <li key={name.id}> {med_list_name[name.id] + ":" + name.amount} </li>)}
                     </ul>
                   </Paper>
                 </Grid>
