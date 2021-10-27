@@ -76,7 +76,11 @@ function Home() {
     async function getCameraStream() {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
-        video: true,
+        // video: true,
+        video: {
+          width: { ideal: 1920},
+          height: {ideal: 1080}
+        }
       });
 
       if (videoRef.current) {
@@ -99,9 +103,9 @@ function Home() {
 
     photoRef.current.width = videoWidth;
     photoRef.current.height = videoHeight;
-    
+
     context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
-    
+
     photoRef.current.toBlob((blob) => {
       imageRef.current = blob;
     })
@@ -115,7 +119,7 @@ function Home() {
     //     method: "POST",
     //     body: formData,
     //   })
-      
+
     //   if (response.status === 200) {
     //     const text = await response.json()
     //     // const qrCodeID = Object.keys(text)[0]
@@ -129,10 +133,17 @@ function Home() {
     //   //console.log(result)
     // }
 
-    const response = await fetch('/detectMed', {
-      method: "GET"
-      //body: formData,
-    })
+      const formData = new FormData();
+      formData.append('image', imageRef.current);
+      const response = await fetch('/detectMed', {
+        method: "POST",
+        body: formData,
+      })
+
+    // const response = await fetch('/detectMed', {
+    //   method: "GET"
+    //   //body: formData,
+    // })
 
     if (response.status === 200) {
       setGTruth([])
@@ -148,7 +159,7 @@ function Home() {
       alert("somtething wrong");
     }
   }
-  
+
   console.log("result is", result)
   const props = {
     color: 'red'

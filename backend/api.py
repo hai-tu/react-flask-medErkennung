@@ -21,7 +21,7 @@ def detect():
       image = Image.open(file)
       image = image.convert('RGB')
       image = numpy.array(image)
-      image = image[:, :, ::-1].copy() 
+      image = image[:, :, ::-1].copy()
       cv2.imwrite("testing.jpg", image)
       barcodes = pyzbar.decode(image)
       barcodeData="test1"
@@ -48,21 +48,27 @@ def getAllMedID(medBox):
 
 @app.route('/detectMed', methods = ['POST', 'GET'])
 def detectMed():
-   # print("hier")
-   # print(request.files.to_dict())
-   # if (request.files['image']):
-   #    file = request.files['image']
-   #    #file = request.files['image']
-   #    image = Image.open(file)
-   #    image = image.convert('RGB')
-   #    image = numpy.array(image)
-   #    image = image[:, :, ::-1].copy() 
-   #    cv2.imwrite("testing.jpg", image)
-   #    barcodes = pyzbar.decode(image)
-   #    barcodeData="test1"
-   #    for barcode in barcodes:
-   #       barcodeData = barcode.data.decode("utf-8")
-   
+   #print("hier")
+   #print(request.files.to_dict())
+   if (request.files['image']):
+      file = request.files['image']
+      #file = request.files['image']
+      image = Image.open(file)
+      image = image.convert('RGB')
+      image = numpy.array(image)
+      image = image[:, :, ::-1].copy()
+      cv2.imwrite("testing.jpg", image)
+      test_folder = "data/io/in/test"
+      for f in os.listdir(test_folder):
+         os.remove(os.path.join(test_folder, f))
+      savePath = os.path.join(test_folder, "testing.jpg")
+      #cv2.imwrite("testing.jpg", image)
+      cv2.imwrite(savePath, image)
+      # barcodes = pyzbar.decode(image)
+      # barcodeData="test1"
+      # for barcode in barcodes:
+      #    barcodeData = barcode.data.decode("utf-8")
+
    result_folder = "data/io/result/med"
    for f in os.listdir(result_folder):
       os.remove(os.path.join(result_folder, f))
@@ -91,7 +97,7 @@ def detectMed():
                med_list.append(med)
             #boxID = "box_" + str(i)
             #box[boxID] = med
-            
+
             #med_list.append(med)
          #fileName = "box" + str(i)
          #medBox[fileName] = med_list
@@ -129,7 +135,7 @@ def detectMed():
                   if each_med["id"] == med["id"]:
                      if med["amount"] != each_med["amount"]:
                         interResult = False
-               
+
       result.append(interResult)
    #print("result is", result)
    print("Ground Truth", gtruth)
