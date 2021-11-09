@@ -24,12 +24,14 @@ def detect():
       image = image[:, :, ::-1].copy()
       cv2.imwrite("testing.jpg", image)
       barcodes = pyzbar.decode(image)
-      barcodeData="test1"
+      barcodeData="PatientID"
       for barcode in barcodes:
          barcodeData = barcode.data.decode("utf-8")
          barcodeType = barcode.type
+         print(barcodeData)
          #print("[INFO] Found {} barcode: {}".format(barcodeType, barcodeData))
       #print(barcodeData)
+      #barcodeData="test1"
       filenames = os.listdir("saved_data")
       data = {}
       if barcodeData in filenames:
@@ -58,6 +60,12 @@ def detectMed():
       image = numpy.array(image)
       image = image[:, :, ::-1].copy()
       cv2.imwrite("testing.jpg", image)
+      barcodes = pyzbar.decode(image)
+      barcodeData="PatientID"
+      for barcode in barcodes:
+         barcodeData = barcode.data.decode("utf-8")
+         barcodeType = barcode.type
+         print(barcodeData)
       test_folder = "data/io/in/test"
       for f in os.listdir(test_folder):
          os.remove(os.path.join(test_folder, f))
@@ -108,7 +116,8 @@ def detectMed():
          #medBox.append(med_list)
          i = i + 1
    print(medBox)
-   with open("data/groundtruth/PatienID") as f:
+   #with open("data/groundtruth/PatienID") as f:
+   with open(f"saved_data/{barcodeData}") as f:
       ground_truth = json.load(f)
    gtruth = []
    for value in ground_truth.values():
@@ -187,7 +196,7 @@ def deletePatientFile():
    files = jsonData["fileName"]
    result = []
    for file in os.listdir("saved_data"):
-      if file not in files and file != "empty":
+      if file not in files:# and file != "empty":
          result.append(file)
       else:
          os.remove(f"saved_data/{file}")
