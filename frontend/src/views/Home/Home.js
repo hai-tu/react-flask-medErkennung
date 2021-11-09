@@ -153,6 +153,7 @@ function Home() {
       // setqrCode(qrCodeID)
       setGTruth(text.groundtruth)
       setResult(text.prediction)
+      setqrCode(text.patientID)
       console.log(text.prediction)
       console.log(text.result)
     } else {
@@ -194,7 +195,7 @@ function Home() {
           </div>
           <div className="Prediction">
             <Typography variant="h6" className={classes.title}>
-              Prediction
+              Detection
             </Typography>
             <Grid container direction="column" >
               {result.map((value) => (

@@ -13,8 +13,6 @@ app = Flask(__name__)
 
 @app.route('/detect', methods = ['POST', 'GET'])
 def detect():
-   #print("hier")
-   #print(request.files.to_dict())
    if (request.files['image']):
       file = request.files['image']
       #file = request.files['image']
@@ -30,8 +28,6 @@ def detect():
          barcodeType = barcode.type
          print(barcodeData)
          #print("[INFO] Found {} barcode: {}".format(barcodeType, barcodeData))
-      #print(barcodeData)
-      #barcodeData="test1"
       filenames = os.listdir("saved_data")
       data = {}
       if barcodeData in filenames:
@@ -70,12 +66,7 @@ def detectMed():
       for f in os.listdir(test_folder):
          os.remove(os.path.join(test_folder, f))
       savePath = os.path.join(test_folder, "testing.jpg")
-      #cv2.imwrite("testing.jpg", image)
       cv2.imwrite(savePath, image)
-      # barcodes = pyzbar.decode(image)
-      # barcodeData="test1"
-      # for barcode in barcodes:
-      #    barcodeData = barcode.data.decode("utf-8")
 
    result_folder = "data/io/result/med"
    for f in os.listdir(result_folder):
@@ -116,7 +107,6 @@ def detectMed():
          #medBox.append(med_list)
          i = i + 1
    print(medBox)
-   #with open("data/groundtruth/PatienID") as f:
    with open(f"saved_data/{barcodeData}") as f:
       ground_truth = json.load(f)
    gtruth = []
@@ -152,8 +142,7 @@ def detectMed():
       medBox[i]["result"] = result[i]
    # print(gtruth)
    # print(ground_truth)
-   #result = [1,2,3]
-   return { "groundtruth": gtruth, "prediction": medBox, "result":result}
+   return { "groundtruth": gtruth, "prediction": medBox, "result":result, "patientID":barcodeData}
 
 @app.route('/saveData', methods = ['POST', 'GET'])
 def saveData():
