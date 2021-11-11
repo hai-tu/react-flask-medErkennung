@@ -102,7 +102,7 @@ def detectMed():
          #medBox.append(med_list)
          i = i + 1
    print(medBox)
-   with open("data/groundtruth/PatienID") as f:
+   with open("data/groundtruth/PatienID_multi") as f:
       ground_truth = json.load(f)
    gtruth = []
    for value in ground_truth.values():
