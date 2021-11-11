@@ -13,23 +13,21 @@ app = Flask(__name__)
 
 @app.route('/detect', methods = ['POST', 'GET'])
 def detect():
-   #print("hier")
-   #print(request.files.to_dict())
    if (request.files['image']):
       file = request.files['image']
       #file = request.files['image']
       image = Image.open(file)
       image = image.convert('RGB')
       image = numpy.array(image)
-      image = image[:, :, ::-1].copy() 
+      image = image[:, :, ::-1].copy()
       cv2.imwrite("testing.jpg", image)
       barcodes = pyzbar.decode(image)
-      barcodeData="test1"
+      barcodeData="PatientID"
       for barcode in barcodes:
          barcodeData = barcode.data.decode("utf-8")
          barcodeType = barcode.type
+         print(barcodeData)
          #print("[INFO] Found {} barcode: {}".format(barcodeType, barcodeData))
-      #print(barcodeData)
       filenames = os.listdir("saved_data")
       data = {}
       if barcodeData in filenames:
@@ -48,21 +46,28 @@ def getAllMedID(medBox):
 
 @app.route('/detectMed', methods = ['POST', 'GET'])
 def detectMed():
-   # print("hier")
-   # print(request.files.to_dict())
-   # if (request.files['image']):
-   #    file = request.files['image']
-   #    #file = request.files['image']
-   #    image = Image.open(file)
-   #    image = image.convert('RGB')
-   #    image = numpy.array(image)
-   #    image = image[:, :, ::-1].copy() 
-   #    cv2.imwrite("testing.jpg", image)
-   #    barcodes = pyzbar.decode(image)
-   #    barcodeData="test1"
-   #    for barcode in barcodes:
-   #       barcodeData = barcode.data.decode("utf-8")
-   
+   #print("hier")
+   #print(request.files.to_dict())
+   if (request.files['image']):
+      file = request.files['image']
+      #file = request.files['image']
+      image = Image.open(file)
+      image = image.convert('RGB')
+      image = numpy.array(image)
+      image = image[:, :, ::-1].copy()
+      cv2.imwrite("testing.jpg", image)
+      barcodes = pyzbar.decode(image)
+      barcodeData="PatientID"
+      for barcode in barcodes:
+         barcodeData = barcode.data.decode("utf-8")
+         barcodeType = barcode.type
+         print(barcodeData)
+      test_folder = "data/io/in/test"
+      for f in os.listdir(test_folder):
+         os.remove(os.path.join(test_folder, f))
+      savePath = os.path.join(test_folder, "testing.jpg")
+      cv2.imwrite(savePath, image)
+
    result_folder = "data/io/result/med"
    for f in os.listdir(result_folder):
       os.remove(os.path.join(result_folder, f))
@@ -91,7 +96,7 @@ def detectMed():
                med_list.append(med)
             #boxID = "box_" + str(i)
             #box[boxID] = med
-            
+
             #med_list.append(med)
          #fileName = "box" + str(i)
          #medBox[fileName] = med_list
@@ -102,7 +107,7 @@ def detectMed():
          #medBox.append(med_list)
          i = i + 1
    print(medBox)
-   with open("data/groundtruth/PatienID_multi") as f:
+   with open(f"saved_data/{barcodeData}") as f:
       ground_truth = json.load(f)
    gtruth = []
    for value in ground_truth.values():
@@ -129,7 +134,7 @@ def detectMed():
                   if each_med["id"] == med["id"]:
                      if med["amount"] != each_med["amount"]:
                         interResult = False
-               
+
       result.append(interResult)
    #print("result is", result)
    print("Ground Truth", gtruth)
@@ -137,8 +142,7 @@ def detectMed():
       medBox[i]["result"] = result[i]
    # print(gtruth)
    # print(ground_truth)
-   #result = [1,2,3]
-   return { "groundtruth": gtruth, "prediction": medBox, "result":result}
+   return { "groundtruth": gtruth, "prediction": medBox, "result":result, "patientID":barcodeData}
 
 @app.route('/saveData', methods = ['POST', 'GET'])
 def saveData():
@@ -181,7 +185,7 @@ def deletePatientFile():
    files = jsonData["fileName"]
    result = []
    for file in os.listdir("saved_data"):
-      if file not in files and file != "empty":
+      if file not in files:# and file != "empty":
          result.append(file)
       else:
          os.remove(f"saved_data/{file}")

@@ -8,7 +8,8 @@ import utility
 
 PATHS = {
     # NOTE: Set this path to your main project directory
-    "project_path": r"E:\Uni\IGD\react-flask-medErkennung\backend",
+    #"project_path": r"E:\Uni\IGD\react-flask-medErkennung\backend",
+    "project_path": r"C:\react-flask-medErkennung\backend",
 }
 
 # Create and set paths all I/O paths
