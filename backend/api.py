@@ -15,7 +15,6 @@ app = Flask(__name__)
 def detect():
    if (request.files['image']):
       file = request.files['image']
-      #file = request.files['image']
       image = Image.open(file)
       image = image.convert('RGB')
       image = numpy.array(image)

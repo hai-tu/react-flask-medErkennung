@@ -321,7 +321,8 @@ def preprocess_meds(data_box, data_med, dest_path=False, visualize=False):
                 if PARAMS["mode"] == "train" and dest_path:
                     # save med labels for box cropped image
                     lbl_dest_path = os.path.join(
-                        dest_path, name[:-4] + "_box" + str(box_num) + ".txt"
+                        #dest_path, name[:-4] + "_box" + str(box_num) + ".txt"
+                        dest_path, name + "_box" + str(box_num) + ".txt"
                     )
                     lbl = open(lbl_dest_path, "w")
                     lbl.write(lbl_meds_box)

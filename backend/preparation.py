@@ -9,6 +9,7 @@ import json
 
 # Import third party packages
 import cv2
+import params
 
 
 def prepare_label(data, src_path, dest_path=None, format="yolo"):
@@ -109,7 +110,13 @@ def convert_labels(json_data, format):
     # walk through all objects, get relevant data
     for obj in json_data["objects"]:
         class_label = obj["classTitle"]
-        class_label = str(int(class_label[:2]))
+        class_label = class_label.lower()
+        #print(class_label)
+        if "box" in class_label:
+            class_label = str(0)
+        else:
+            class_label = str(params.CLASS_NAMES[class_label])
+        #class_label = str(int(class_label[:2]))
         x1 = obj["points"]["exterior"][0][0]
         y1 = obj["points"]["exterior"][0][1]
         x2 = obj["points"]["exterior"][1][0]
