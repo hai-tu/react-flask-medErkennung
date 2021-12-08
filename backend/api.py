@@ -158,7 +158,6 @@ def saveData():
       if f != "empty":
          result.append(f)
    return {"list": result}
-   #return {"data": "everything good"}
 
 @app.route('/getPatientID', methods = ['GET'])
 def getPatientID():
