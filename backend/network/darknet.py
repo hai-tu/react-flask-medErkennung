@@ -224,9 +224,14 @@ if os.name == "nt":
     #         lib = CDLL(winGPUdll, RTLD_GLOBAL)
     #         print("Environment variables indicated a CPU run, but we didn't find {}. Trying a GPU run anyway.".format(winNoGPUdll))
 else:
-    lib = CDLL(os.path.join(
-        os.environ.get('DARKNET_PATH', './'),
-        "libdarknet.so"), RTLD_GLOBAL)
+    cwd = os.path.dirname(__file__)
+    os.environ['PATH'] = cwd + ';' + os.environ['PATH']
+    winNoGPUso = os.path.join(cwd, "libdarknet.so")
+    envKeys = list()
+    print(winNoGPUso)
+    for k, v in os.environ.items():
+        envKeys.append(k)
+    lib = CDLL(winNoGPUso, RTLD_GLOBAL)
 lib.network_width.argtypes = [c_void_p]
 lib.network_width.restype = c_int
 lib.network_height.argtypes = [c_void_p]
