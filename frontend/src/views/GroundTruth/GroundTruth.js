@@ -1,21 +1,22 @@
 import React, {useState, useEffect, useRef, useDebugValue} from 'react';
 import {Container, Button, Box, Typography} from '@material-ui/core'
-import { AppBar, Toolbar, IconButton, Grid, Paper, TextField} from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
+// import { AppBar, Toolbar, IconButton, Grid, Paper, TextField} from '@material-ui/core';
+// import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import './GroundTruth.css';
 import styled from 'styled-components';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import Task from './task';
+//import Task from './task';
 import {initialData, saved_data} from './initial-data';
 import Column from './column';
-import { teal } from '@material-ui/core/colors';
+//import { teal } from '@material-ui/core/colors';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+//import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
+import QRCode from "qrcode.react"
 //import CommentIcon from '@material-ui/icons/Comment';
 
 
@@ -83,6 +84,7 @@ function GroundTruth() {
   const [characters, updateCharacters] = useState(med_list);
   const [medBox, updateMedBox] = useState(finalSpaceCharacters);
   const [state, setState] = useState(initialData)
+  const [qrValue, setQrValue] = useState("qrcode");
 
   useEffect(async function getPatientList() {
     // Update the document title using the browser API
@@ -519,6 +521,24 @@ function GroundTruth() {
     
   }
 
+  const handleOnChange = event => {
+    const { value } = event.target;
+    setQrValue(value);
+  };
+  const downloadQRCode = () => {
+    // Generate download with use canvas and stream
+    const canvas = document.getElementById("qr-gen");
+    const pngUrl = canvas
+      .toDataURL("image/png")
+      .replace("image/png", "image/octet-stream");
+    let downloadLink = document.createElement("a");
+    downloadLink.href = pngUrl;
+    downloadLink.download = `${qrValue}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  };
+
   return (
     <div className="App">
       <Box bgcolor="lightblue" display="flex" flexDirection="row">
@@ -582,6 +602,25 @@ function GroundTruth() {
           </div>
           <Button className={classes.button} variant="contained" color="primary" onClick={loadData}>Load File</Button>
           <Button className={classes.button} variant="contained" color="primary" onClick={deleteData}>Delete File</Button>
+          <div className="QRCode">
+            <Typography variant="h6" className={classes.title}>
+              QR Code and Download
+            </Typography>
+            <input onChange={handleOnChange} placeholder="PatientID" />
+            <br />
+            <QRCode
+              id="qr-gen"
+              value={qrValue}
+              size={290}
+              level={"H"}
+              includeMargin={true}
+            />
+            <p>
+              <button type="button" onClick={downloadQRCode}>
+                Download QR Code
+              </button>
+            </p>
+          </div>
         </div>
       </Box>
     </div>
