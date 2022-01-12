@@ -603,8 +603,8 @@ function GroundTruth() {
           <Button className={classes.button} variant="contained" color="primary" onClick={loadData}>Load File</Button>
           <Button className={classes.button} variant="contained" color="primary" onClick={deleteData}>Delete File</Button>
           <div className="QRCode">
-            <Typography variant="h6" className={classes.title}>
-              QR Code and Download
+            <Typography variant="h6" color="primary" className={classes.title}>
+              QR Code Generator
             </Typography>
             <input onChange={handleOnChange} placeholder="PatientID" />
             <br />
