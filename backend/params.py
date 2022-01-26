@@ -50,10 +50,14 @@ PATHS["io_result_med_path"] = out_med_path
 PARAMS = {
     "mode": "test",  # Set pipeline mode; "train" or "test"
     # These params are used for center cropping
-    "translation_x": -100,
-    "translation_y": 100,
-    "crop_width": 0.65,
-    "crop_height": 0.4,
+    #"translation_x": -100,
+    #"translation_y": 100,
+    #"crop_width": 0.65,
+    #"crop_height": 0.4,
+    "translation_x": 0,
+    "translation_y": 0,
+    "crop_width": 0.90,
+    "crop_height": 0.75,
 }
 
 
