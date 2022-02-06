@@ -358,7 +358,7 @@ def visualize_result(data_box, data_med, dest_path=None):
 
         # Load every single corresponding med label
         med_labels = ""
-        for i in range(0, 5):
+        for i in range(0, 4):
             med_label = data_med[name]["processed"]["label"][i]
             box_label = box_labels[i]  # Get Box corresponding to meds label
             med_labels += processing.back_calculation_labels(
@@ -470,7 +470,7 @@ def run_pipeline_live(out=True):
     data_med = init_datastructure(src_path=PATHS["in_test_path"], type="med")
     data_med = preprocess_meds(data_box=data_box, data_med=data_med)
     for name, data_case in data_med.items():
-        for i in range(0, 5):
+        for i in range(0, 4):
             label = integration.detect_image(
                 image=data_case["processed"]["image"][i], network_type="med"
             )
