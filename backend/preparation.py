@@ -11,6 +11,7 @@ import json
 import cv2
 import params
 
+from utils.camera_calibration import undistort_image
 
 def prepare_label(data, src_path, dest_path=None, format="yolo"):
     """Preparation of the labels by converting them to an other format
@@ -81,7 +82,9 @@ def prepare_images(data, src_path, dest_path=None):
         for filename in [f for f in filenames if f.endswith(".jpg")]:
             # Save img to data
             src_file_path = os.path.join(dirpath, filename)
-            data[filename[:-4]]["raw"]["image"] = cv2.imread(src_file_path)
+            img, roi = undistort_image(cv2.imread(src_file_path))
+            #data[filename[:-4]]["raw"]["image"] = cv2.imread(src_file_path)
+            data[filename[:-4]]["raw"]["image"] = img
             # Optional image output
             if dest_path:
                 dest_file_path = os.path.join(dest_path, filename)

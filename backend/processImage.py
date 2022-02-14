@@ -6,8 +6,13 @@ the whole pipeline, resulting in prediction labels.
 # Import standard packages
 import shutil
 import os
+import timeit
+from typing import Tuple
+import os
 
 # Import third party packages
+import numpy as np
+from utils.camera_calibration import undistort_image
 import cv2
 
 # Import project modules
@@ -171,6 +176,7 @@ def preprocess_box(data, dest_path=None, visualize=False):
         old_height = img.shape[0]
         old_width = img.shape[1]
         # Translate and center crop image
+        #img, roi = undistort_image(img)
         img = processing.translate_image(img, t_x, t_y)
         processed_img = processing.center_crop_image(
             img, crop_width, crop_height
@@ -454,7 +460,6 @@ def run_pipeline_live(out=True):
                 label,
                 PATHS["io_result_box_path"],
             )
-
     # fileName = ""
     # for name, data_case in data_box.items():
     #     fileName = os.path.join(PATHS["io_result_box_path"], name + ".txt")
