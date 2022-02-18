@@ -27,15 +27,15 @@ for barcode in barcodes:
 cv2.imshow("Image", image)
 cv2.waitKey(0)
 
-detector = cv2.QRCodeDetector()
+#detector = cv2.QRCodeDetector()
 # detect and decode
-data, vertices_array, binary_qrcode = detector.detectAndDecode(image)
+#data, vertices_array, binary_qrcode = detector.detectAndDecode(image)
 # if there is a QR code
 # print the data
-cv2.imshow("image", image)
-cv2.waitKey(0)
-if vertices_array is not None:
-  print("QRCode data:")
-  print(data)
-else:
-  print("There was some error") 
+#cv2.imshow("image", image)
+#cv2.waitKey(0)
+#if vertices_array is not None:
+  #print("QRCode data:")
+  #print(data)
+#else:
+  #print("There was some error") 
