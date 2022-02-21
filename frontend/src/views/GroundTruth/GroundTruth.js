@@ -93,7 +93,6 @@ function GroundTruth() {
     })
     console.log("initial load")
     if (response.status === 200) {
-      console.log(response.json())
       const text = await response.json()
       console.log(text)
       setPatientList(text.list)
@@ -160,11 +159,6 @@ function GroundTruth() {
 
     context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
     imageRef.current = await new Promise(resolve => photoRef.current.toBlob(resolve))
-
-    // photoRef.current.toBlob((blob) => {
-    //   imageRef.current = blob;
-
-    // })
 
     console.log(imageRef.current)
     if (imageRef.current) {

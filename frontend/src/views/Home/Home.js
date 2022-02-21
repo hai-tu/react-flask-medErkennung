@@ -136,14 +136,29 @@ function Home() {
 
     //   //console.log(result)
     // }
+    const context = photoRef.current.getContext('2d');
+    const {videoWidth, videoHeight} = videoRef.current;
 
-      const formData = new FormData();
-      formData.append('image', imageRef.current);
-      const response = await fetch('/getGroundTruth', {
-        method: "POST",
-        body: formData,
-      })
-      
+    photoRef.current.width = videoWidth;
+    photoRef.current.height = videoHeight;
+
+    context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
+    // //const formData = new FormData();
+    //
+    // photoRef.current.toBlob((blob) => {
+    //   // formData.append('image', blob);
+    //   imageRef.current = blob;
+    // })
+    imageRef.current = await new Promise(resolve => photoRef.current.toBlob(resolve))
+
+    const formData = new FormData();
+    formData.append('image', imageRef.current);
+    console.log("hier")
+    const response = await fetch('/getGroundTruth', {
+      method: "POST",
+      body: formData,
+    })
+
 
     // const response = await fetch('/detectMed', {
     //   method: "GET"
@@ -201,14 +216,21 @@ function Home() {
 
     //   //console.log(result)
     // }
+    const context = photoRef.current.getContext('2d');
+    const {videoWidth, videoHeight} = videoRef.current;
 
+    photoRef.current.width = videoWidth;
+    photoRef.current.height = videoHeight;
+
+    context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
+    imageRef.current = await new Promise(resolve => photoRef.current.toBlob(resolve))
       const formData = new FormData();
       formData.append('image', imageRef.current);
       const response = await fetch('/detectMed', {
         method: "POST",
         body: formData,
       })
-      
+
 
     // const response = await fetch('/detectMed', {
     //   method: "GET"
@@ -243,7 +265,7 @@ function Home() {
         <div className="Live-Section" >
           <video className="streaming" ref={videoRef} onCanPlay={() => playCameraStream()} id="video" />
           <Button className={classes.button} variant="contained" color="primary" onClick={getGroundTruth}>Patient Med</Button>
-          {/* <Button className={classes.button} variant="contained" color="primary" onClick={takePhoto}>Take Picture</Button> */}
+          {/*<Button className={classes.button} variant="contained" color="primary" onClick={takePhoto}>Take Picture</Button>*/}
           <Button className={classes.button} variant="contained" color="primary" onClick={detectMed}>Detect</Button>
           <canvas className="streaming" ref={photoRef} />
         </div>

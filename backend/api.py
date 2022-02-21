@@ -42,32 +42,37 @@ def getAllMedID(medBox):
    for med in medBox:
       result.append(med["id"])
    return result
-
+barcodeData = "PatientID"
 @app.route('/getGroundTruth', methods = ['POST', 'GET'])
 def getGroundTruth():
+
    #print("hier")
    #print(request.files.to_dict())
    #print("hier", os.listdir("data/io/in/test"))
-   barcodeData = "PatienID"
-   # if (request.files['image']):
-   #    file = request.files['image']
-   #    #file = request.files['image']
-   #    image = Image.open(file)
-   #    image = image.convert('RGB')
-   #    image = numpy.array(image)
-   #    image = image[:, :, ::-1].copy()
-   #    cv2.imwrite("testing.jpg", image)
-   #    barcodes = pyzbar.decode(image)
-   #    barcodeData="PatientID"
-   #    for barcode in barcodes:
-   #       barcodeData = barcode.data.decode("utf-8")
-   #       barcodeType = barcode.type
-   #       print(barcodeData)
-   #    test_folder = "data/io/in/test"
-   #    for f in os.listdir(test_folder):
-   #       os.remove(os.path.join(test_folder, f))
-   #    savePath = os.path.join(test_folder, "testing.jpg")
-   #    cv2.imwrite(savePath, image)
+   # barcodeData = "PatienID"
+   # print("hier_top")
+   global barcodeData
+   print(barcodeData)
+   if (request.files['image']):
+      # print("hier")
+      file = request.files['image']
+      #file = request.files['image']
+      image = Image.open(file)
+      image = image.convert('RGB')
+      image = numpy.array(image)
+      image = image[:, :, ::-1].copy()
+      #cv2.imwrite("testing.jpg", image)
+      barcodes = pyzbar.decode(image)
+      barcodeData="PatientID"
+      for barcode in barcodes:
+         barcodeData = barcode.data.decode("utf-8")
+         barcodeType = barcode.type
+         print(barcodeData)
+      # test_folder = "data/io/in/test"
+      # for f in os.listdir(test_folder):
+      #    os.remove(os.path.join(test_folder, f))
+      # savePath = os.path.join(test_folder, "testing.jpg")
+      # cv2.imwrite(savePath, image)
 
    with open(f"saved_data/{barcodeData}") as f:
       ground_truth = json.load(f)
@@ -89,26 +94,28 @@ def detectMed():
    #print("hier")
    #print(request.files.to_dict())
    #print("hier", os.listdir("data/io/in/test"))
-   barcodeData = "PatienID"
-   # if (request.files['image']):
-   #    file = request.files['image']
-   #    #file = request.files['image']
-   #    image = Image.open(file)
-   #    image = image.convert('RGB')
-   #    image = numpy.array(image)
-   #    image = image[:, :, ::-1].copy()
-   #    cv2.imwrite("testing.jpg", image)
-   #    barcodes = pyzbar.decode(image)
-   #    barcodeData="PatientID"
-   #    for barcode in barcodes:
-   #       barcodeData = barcode.data.decode("utf-8")
-   #       barcodeType = barcode.type
-   #       print(barcodeData)
-   #    test_folder = "data/io/in/test"
-   #    for f in os.listdir(test_folder):
-   #       os.remove(os.path.join(test_folder, f))
-   #    savePath = os.path.join(test_folder, "testing.jpg")
-   #    cv2.imwrite(savePath, image)
+   # barcodeData = "PatienID"
+   global barcodeData
+   print(barcodeData)
+   if (request.files['image']):
+      file = request.files['image']
+      #file = request.files['image']
+      image = Image.open(file)
+      image = image.convert('RGB')
+      image = numpy.array(image)
+      image = image[:, :, ::-1].copy()
+      # cv2.imwrite("testing.jpg", image)
+      # barcodes = pyzbar.decode(image)
+      # barcodeData="PatientID"
+      # for barcode in barcodes:
+      #    barcodeData = barcode.data.decode("utf-8")
+      #    barcodeType = barcode.type
+      #    print(barcodeData)
+      test_folder = "data/io/in/test"
+      for f in os.listdir(test_folder):
+         os.remove(os.path.join(test_folder, f))
+      savePath = os.path.join(test_folder, "testing.jpg")
+      cv2.imwrite(savePath, image)
 
    result_folder = "data/io/result/med"
    for f in os.listdir(result_folder):
@@ -191,7 +198,7 @@ def detectMed():
 def saveData():
    data = json.loads(request.data)
    #print(data["column-2"])
-   #print(data.keys())
+   print(data.keys())
    dictKeys = list(data.keys())
    fileName = dictKeys[0]
    data = data[fileName]
