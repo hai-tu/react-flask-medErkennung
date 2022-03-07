@@ -3,3 +3,4 @@ data/io/in/box
 data/io/in/med
 data/io/preprocessed
 data/io/raw
+network/med/med.weights
