@@ -6,8 +6,13 @@ the whole pipeline, resulting in prediction labels.
 # Import standard packages
 import shutil
 import os
+import timeit
+from typing import Tuple
+import os
 
 # Import third party packages
+import numpy as np
+from utils.camera_calibration import undistort_image
 import cv2
 
 # Import project modules
@@ -171,6 +176,7 @@ def preprocess_box(data, dest_path=None, visualize=False):
         old_height = img.shape[0]
         old_width = img.shape[1]
         # Translate and center crop image
+        #img, roi = undistort_image(img)
         img = processing.translate_image(img, t_x, t_y)
         processed_img = processing.center_crop_image(
             img, crop_width, crop_height
@@ -228,115 +234,120 @@ def preprocess_meds(data_box, data_med, dest_path=False, visualize=False):
             See init_datastructure for precise structure format.
     """
     for name, data_box_case in data_box.items():
-        img = data_box_case["processed"]["image"]
-        label_box = data_box_case["processed"]["label"]
+        img = data_box_case["raw"]["image"]
+        img = processing.translate_image(img, t_x, t_y)
+        img = processing.center_crop_image(
+            img, crop_width, crop_height
+        )
+        # img = data_box_case["processed"]["image"]
+        # label_box = data_box_case["processed"]["label"]
 
-        if PARAMS["mode"] == "train":
-            # Center crop med labels
-            label_med = data_med[name]["raw"]["label"]
-            label_med_new = processing.center_crop_label(
-                label_med,
-                [
-                    data_box_case["raw"]["image"].shape[0],
-                    data_box_case["raw"]["image"].shape[1],
-                ],
-            )
-
-        for box_num, box_line in enumerate(label_box.split("\n")):
-            if box_line:
-                (
-                    class_lbl,
-                    x_center,
-                    y_center,
-                    width,
-                    height,
-                ) = utility.read_yolo_lbl(box_line, img.shape[0], img.shape[1])
+        # if PARAMS["mode"] == "train":
+        #     # Center crop med labels
+        #     label_med = data_med[name]["raw"]["label"]
+        #     label_med_new = processing.center_crop_label(
+        #         label_med,
+        #         [
+        #             data_box_case["raw"]["image"].shape[0],
+        #             data_box_case["raw"]["image"].shape[1],
+        #         ],
+        #     )
+        data_med[name]["processed"]["image"].append(img)
+        # for box_num, box_line in enumerate(label_box.split("\n")):
+        #     if box_line:
+        #         (
+        #             class_lbl,
+        #             x_center,
+        #             y_center,
+        #             width,
+        #             height,
+        #         ) = utility.read_yolo_lbl(box_line, img.shape[0], img.shape[1])
                 
-                # Bbox crop image
-                h2 = int(height / 2)
-                w2 = int(width / 2)
-                tl_x = max(
-                    0, x_center - w2
-                )  # Top left x coordinate # NOTE: Fix for rounding errors
-                br_x = x_center + w2  # Bottom right x coordinate
-                tl_y = y_center - h2  # Top left y coordinate
-                br_y = y_center + h2  # Bottom right y coordinate
-                img_crop = img[tl_y:br_y, tl_x:br_x]
-                data_med[name]["processed"]["image"].append(img_crop)
+        #         # Bbox crop image
+        #         h2 = int(height / 2)
+        #         w2 = int(width / 2)
+        #         tl_x = max(
+        #             0, x_center - w2
+        #         )  # Top left x coordinate # : Fix for rounding errors
+        #         br_x = x_center + w2  # Bottom right x coordinate
+        #         tl_y = y_center - h2  # Top left y coordinate
+        #         br_y = y_center + h2  # Bottom right y coordinate
+        #         img_crop = img[tl_y:br_y, tl_x:br_x]
+        #         data_med[name]["processed"]["image"].append(img_crop)
 
-                if PARAMS["mode"] == "train":
-                    lbl_meds_box = ""  # Label of meds in a single box
-                    for meds_line in label_med_new.split("\n"):
-                        if meds_line:
-                            (
-                                med_class_lbl,
-                                med_x_center_old,
-                                med_y_center_old,
-                                med_width_old,
-                                med_height_old,
-                            ) = utility.read_yolo_lbl(
-                                meds_line, img.shape[0], img.shape[1]
-                            )
+                # if PARAMS["mode"] == "train":
+                #     lbl_meds_box = ""  # Label of meds in a single box
+                #     for meds_line in label_med_new.split("\n"):
+                #         if meds_line:
+                #             (
+                #                 med_class_lbl,
+                #                 med_x_center_old,
+                #                 med_y_center_old,
+                #                 med_width_old,
+                #                 med_height_old,
+                #             ) = utility.read_yolo_lbl(
+                #                 meds_line, img.shape[0], img.shape[1]
+                #             )
 
-                            # check if center point of med label lies between
-                            # the box points top left and bottom right
-                            if (
-                                med_x_center_old > tl_x
-                                and med_x_center_old < br_x
-                                and med_y_center_old > tl_y
-                                and med_y_center_old < br_y
-                            ):
-                                med_x_center = (
-                                    med_x_center_old - tl_x
-                                ) / width
-                                med_y_center = (
-                                    med_y_center_old - tl_y
-                                ) / height
-                                med_width = med_width_old / width
-                                med_height = med_height_old / height
-                                lbl_meds_box = (
-                                    lbl_meds_box
-                                    + str(med_class_lbl)
-                                    + " "
-                                    + str(med_x_center)
-                                    + " "
-                                    + str(med_y_center)
-                                    + " "
-                                    + str(med_width)
-                                    + " "
-                                    + str(med_height)
-                                    + "\n"
-                                )
-                                data_med[name]["processed"]["label"].append(
-                                    lbl_meds_box
-                                )
+                #             # check if center point of med label lies between
+                #             # the box points top left and bottom right
+                #             if (
+                #                 med_x_center_old > tl_x
+                #                 and med_x_center_old < br_x
+                #                 and med_y_center_old > tl_y
+                #                 and med_y_center_old < br_y
+                #             ):
+                #                 med_x_center = (
+                #                     med_x_center_old - tl_x
+                #                 ) / width
+                #                 med_y_center = (
+                #                     med_y_center_old - tl_y
+                #                 ) / height
+                #                 med_width = med_width_old / width
+                #                 med_height = med_height_old / height
+                #                 lbl_meds_box = (
+                #                     lbl_meds_box
+                #                     + str(med_class_lbl)
+                #                     + " "
+                #                     + str(med_x_center)
+                #                     + " "
+                #                     + str(med_y_center)
+                #                     + " "
+                #                     + str(med_width)
+                #                     + " "
+                #                     + str(med_height)
+                #                     + "\n"
+                #                 )
+                #                 data_med[name]["processed"]["label"].append(
+                #                     lbl_meds_box
+                #                 )
 
-                if dest_path:
-                    # Save box cropped image
-                    img_dest_path = os.path.join(
-                        dest_path, name + "_box" + str(box_num) + ".jpg"
-                    )
-                    cv2.imwrite(img_dest_path, img_crop)
+                # if dest_path:
+                #     # Save box cropped image
+                #     img_dest_path = os.path.join(
+                #         dest_path, name + "_box" + str(box_num) + ".jpg"
+                #     )
+                #     cv2.imwrite(img_dest_path, img_crop)
 
-                if PARAMS["mode"] == "train" and dest_path:
-                    # save med labels for box cropped image
-                    lbl_dest_path = os.path.join(
-                        #dest_path, name[:-4] + "_box" + str(box_num) + ".txt"
-                        dest_path, name + "_box" + str(box_num) + ".txt"
-                    )
-                    lbl = open(lbl_dest_path, "w")
-                    lbl.write(lbl_meds_box)
-                    lbl.close()
+                # if PARAMS["mode"] == "train" and dest_path:
+                #     # save med labels for box cropped image
+                #     lbl_dest_path = os.path.join(
+                #         #dest_path, name[:-4] + "_box" + str(box_num) + ".txt"
+                #         dest_path, name + "_box" + str(box_num) + ".txt"
+                #     )
+                #     lbl = open(lbl_dest_path, "w")
+                #     lbl.write(lbl_meds_box)
+                #     lbl.close()
 
-                    vis_dest_path = utility.create_path(dest_path, "visualize")
-                    if visualize:
-                        visualization.draw_BB(
-                            name,
-                            img_crop,
-                            lbl_meds_box,
-                            vis_dest_path,
-                            postfix="_box" + str(box_num),
-                        )
+                #     vis_dest_path = utility.create_path(dest_path, "visualize")
+                #     if visualize:
+                #         visualization.draw_BB(
+                #             name,
+                #             img_crop,
+                #             lbl_meds_box,
+                #             vis_dest_path,
+                #             postfix="_box" + str(box_num),
+                #         )
     return data_med
 
 
@@ -358,12 +369,12 @@ def visualize_result(data_box, data_med, dest_path=None):
 
         # Load every single corresponding med label
         med_labels = ""
-        for i in range(0, 5):
-            med_label = data_med[name]["processed"]["label"][i]
-            box_label = box_labels[i]  # Get Box corresponding to meds label
-            med_labels += processing.back_calculation_labels(
-                med_labels=med_label, box_label=box_label
-            )
+        #for i in range(0, 4):
+        med_label = data_med[name]["processed"]["label"][0]
+        box_label = box_labels[0]  # Get Box corresponding to meds label
+        med_labels += processing.back_calculation_labels(
+            med_labels=med_label, box_label=box_label
+        )
 
         if dest_path:
             # save med labels for box cropped image
@@ -430,6 +441,8 @@ def run_pipeline_live(out=True):
     data_box = preparation.prepare_images(
         data=data_box, src_path=PATHS["in_test_path"]
     )
+    box_limit = []
+    med_center = []
     data_box = preprocess_box(data=data_box)
     for name, data_case in data_box.items():
         label = integration.detect_image(
@@ -439,6 +452,7 @@ def run_pipeline_live(out=True):
         label_list = label.split("\n")
         label_list = label_list[:-1]
         label_list.sort(key=lambda x:float(x.split()[1]))
+        box_limit = [float(x.split()[1]) + float(x.split()[3])/2 for x in label_list]
         label_list.append("\n")
         label = "\n".join(label_list)
         data_case["processed"]["label"] = label
@@ -447,6 +461,7 @@ def run_pipeline_live(out=True):
                 os.path.join(PATHS["io_result_box_path"], name + ".txt"), "w"
             )
             out.write(label)
+            #print(type(label))
             out.close()
             visualization.draw_BB(
                 name,
@@ -454,7 +469,6 @@ def run_pipeline_live(out=True):
                 label,
                 PATHS["io_result_box_path"],
             )
-
     # fileName = ""
     # for name, data_case in data_box.items():
     #     fileName = os.path.join(PATHS["io_result_box_path"], name + ".txt")
@@ -470,32 +484,60 @@ def run_pipeline_live(out=True):
     data_med = init_datastructure(src_path=PATHS["in_test_path"], type="med")
     data_med = preprocess_meds(data_box=data_box, data_med=data_med)
     for name, data_case in data_med.items():
-        for i in range(0, 5):
-            label = integration.detect_image(
-                image=data_case["processed"]["image"][i], network_type="med"
-            )
-            if out:
+        #for i in range(0, 4):
+        cv2.imwrite('test.jpg', data_case["processed"]["image"][0])
+        label = integration.detect_image(
+            image=data_case["processed"]["image"][0], network_type="med"
+        )
+        #print(label)
+        label_list = label.split("\n")
+        label_list = label_list[:-1]
+        label_list.sort(key=lambda x:float(x.split()[1]))
+        med_boxs  = []
+        start_index = 0
+        for i in range(len(box_limit)):
+            box = []
+            #for lab in label_list:
+            for j in range(start_index, len(label_list)):
+                if float(label_list[j].split()[1]) > box_limit[i]:
+                    start_index = j
+                    break
+                else:
+                    box.append(label_list[j])
+
+            med_boxs.append(box)
+        # label_list.sort(key=lambda x:float(x.split()[1]))
+        # med_center = [float(x.split()[1]) for x in label_list]
+        # label_list.append("\n")
+        # label = "\n".join(label_list)
+        if out:
+            for i in range(len(med_boxs)):
+                #med_boxs[i].append("\n")
+                label_med = "\n".join(med_boxs[i])
                 out = open(
                     os.path.join(
                         PATHS["io_result_med_path"], name + str(i) + ".txt"
+                        #PATHS["io_result_med_path"], name + ".txt"
                     ),
                     "w",
                 )
-                out.write(label)
+                out.write(label_med)
                 out.close()
-                visualization.draw_BB(
-                    name,
-                    data_case["processed"]["image"][i],
-                    label,
-                    PATHS["io_result_med_path"],
-                )
-            data_case["processed"]["label"].append(label)
-
+            visualization.draw_BB(
+                name,
+                data_case["processed"]["image"][0],
+                label,
+                PATHS["io_result_med_path"],
+            )
+        data_case["processed"]["label"].append(label)
+    #print(box_limit)
+    #print(med_center)
+    #print(med_boxs)
     # Postprocessing and visualization
     postprocess()
-    visualize_result(
-        data_box=data_box, data_med=data_med, dest_path=PATHS["io_result_path"]
-    )
+    # visualize_result(
+    #     data_box=data_box, data_med=data_med, dest_path=PATHS["io_result_path"]
+    # )
 
 
 def main():

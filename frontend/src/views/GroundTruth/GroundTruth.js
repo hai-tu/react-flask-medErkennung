@@ -142,9 +142,9 @@ function GroundTruth() {
 
   //   photoRef.current.width = videoWidth;
   //   photoRef.current.height = videoHeight;
-    
+
   //   context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
-    
+
   //   photoRef.current.toBlob((blob) => {
   //     imageRef.current = blob;
   //   })
@@ -156,14 +156,9 @@ function GroundTruth() {
 
     photoRef.current.width = videoWidth;
     photoRef.current.height = videoHeight;
-    
+
     context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
     imageRef.current = await new Promise(resolve => photoRef.current.toBlob(resolve))
-
-    // photoRef.current.toBlob((blob) => {
-    //   imageRef.current = blob;
-      
-    // })
 
     console.log(imageRef.current)
     if (imageRef.current) {
@@ -182,14 +177,14 @@ function GroundTruth() {
         const output = text[qrCodeID]
         console.log("output", output)
         let newColumns = state.columns
-        
+
         for (const [key, value] of Object.entries(output)) {
           //console.log(key,value)
           //console.log("state is", state)
           //const firstColumn = state.columns[key]
           let newTaskIds = []
           for (const med of value["taskIds"]) {
-            
+
             //state.columns[key]["taskIds"].push(med.med)
             newTaskIds.push(med.med)
             const dataBase = state.columns[key]["data"]
@@ -214,7 +209,7 @@ function GroundTruth() {
   }
 
   console.log("what is", savedData)
-  
+
 
   const Container = styled.div`
     margin: 8px;
@@ -297,8 +292,8 @@ function GroundTruth() {
       // setState(tempState);
       // console.log("testing hier", tempState[finish['data']][taskID1]['amount'])
       // return
-      
-      
+
+
     } else if (source.droppableId !== "column-1" && destination) {
       return;
     }
@@ -313,7 +308,7 @@ function GroundTruth() {
     const start = state.columns[source.droppableId];
     //console.log("start", start)
     const finish = state.columns[destination.droppableId];
-    
+
     //console.log("finish", finish)
     if (start === finish) {
       const newTaskIds = Array.from(start.taskIds);
@@ -353,7 +348,7 @@ function GroundTruth() {
     //   ...start,
     //   taskIds: startTaskIds,
     // };
-    
+
     const ID_list = finish.taskIds
     console.log("checking", ID_list)
     //console.log(saved_data[finish.id].taskIds)
@@ -375,7 +370,7 @@ function GroundTruth() {
       //console.log("jsonString", outPut)
       return
     }
-    
+
     const finishTaskIds = Array.from(finish.taskIds);
     finishTaskIds.splice(destination.index, 0, taskID1);
     //finishTaskIds.splice(destination.index, 0, draggableId);
@@ -415,9 +410,9 @@ function GroundTruth() {
     setState(newState);
     // TODO: reorder our column
   };
-  
+
   async function saveData() {
-  
+
     //console.log("hier is", JSON.stringify(savedData))
     console.log(qrCode)
     const toSave = {}
@@ -472,14 +467,14 @@ function GroundTruth() {
       console.log("qrCodeID", qrCodeID)
       console.log("output", output)
       let newColumns = state.columns
-      
+
       for (const [key, value] of Object.entries(output)) {
         //console.log(key,value)
         //console.log("state is", state)
         //const firstColumn = state.columns[key]
         let newTaskIds = []
         for (const med of value["taskIds"]) {
-          
+
           //state.columns[key]["taskIds"].push(med.med)
           newTaskIds.push(med.med)
           const dataBase = state.columns[key]["data"]
@@ -518,7 +513,7 @@ function GroundTruth() {
     }
     setChecked([])
     //setState(initialData)
-    
+
   }
 
   const handleOnChange = event => {

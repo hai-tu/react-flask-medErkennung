@@ -43,44 +43,99 @@ def getAllMedID(medBox):
       result.append(med["id"])
    return result
 
-@app.route('/detectMed', methods = ['POST', 'GET'])
-def detectMed():
+barcodeData = "PatienID"
+@app.route('/getGroundTruth', methods = ['POST', 'GET'])
+def getGroundTruth():
+
    #print("hier")
    #print(request.files.to_dict())
+   #print("hier", os.listdir("data/io/in/test"))
+   # barcodeData = "PatienID"
+   # print("hier_top")
+   global barcodeData
+   print(barcodeData)
    if (request.files['image']):
+      # print("hier")
       file = request.files['image']
       #file = request.files['image']
       image = Image.open(file)
       image = image.convert('RGB')
       image = numpy.array(image)
       image = image[:, :, ::-1].copy()
-      cv2.imwrite("testing.jpg", image)
+      #cv2.imwrite("testing.jpg", image)
       barcodes = pyzbar.decode(image)
       barcodeData="PatientID"
       for barcode in barcodes:
          barcodeData = barcode.data.decode("utf-8")
          barcodeType = barcode.type
          print(barcodeData)
-      test_folder = "data/io/in/test"
-      for f in os.listdir(test_folder):
-         os.remove(os.path.join(test_folder, f))
-      savePath = os.path.join(test_folder, "testing.jpg")
-      cv2.imwrite(savePath, image)
+      # test_folder = "data/io/in/test"
+      # for f in os.listdir(test_folder):
+      #    os.remove(os.path.join(test_folder, f))
+      # savePath = os.path.join(test_folder, "testing.jpg")
+      # cv2.imwrite(savePath, image)
 
-   result_folder = "data/io/result/med"
-   for f in os.listdir(result_folder):
-      os.remove(os.path.join(result_folder, f))
+   with open(f"saved_data/{barcodeData}") as f:
+      ground_truth = json.load(f)
+   gtruth = []
+   for value in ground_truth.values():
+      box = []
+      for med in value["taskIds"]:
+         eachMed = {}
+         medID = med["med"].split("-")[1]
+         eachMed["id"] = str(int(medID) - 1)
+         eachMed["amount"] = med["amount"]
+         box.append(eachMed)
+      gtruth.append(box)
+   # return { "groundtruth": gtruth, "prediction": medBox, "result":result, "patientID":barcodeData}
+   return { "groundtruth": gtruth, "patientID":barcodeData}
+
+@app.route('/detectMed', methods = ['POST', 'GET'])
+def detectMed():
+   #print("hier")
+   #print(request.files.to_dict())
+   #print("hier", os.listdir("data/io/in/test"))
+   # barcodeData = "PatienID"
+   global barcodeData
+   print(barcodeData)
+   # if (request.files['image']):
+   #    file = request.files['image']
+   #    #file = request.files['image']
+   #    image = Image.open(file)
+   #    image = image.convert('RGB')
+   #    image = numpy.array(image)
+   #    image = image[:, :, ::-1].copy()
+   #    # cv2.imwrite("testing.jpg", image)
+   #    # barcodes = pyzbar.decode(image)
+   #    # barcodeData="PatientID"
+   #    # for barcode in barcodes:
+   #    #    barcodeData = barcode.data.decode("utf-8")
+   #    #    barcodeType = barcode.type
+   #    #    print(barcodeData)
+   #    test_folder = "data/io/in/test"
+   #    for f in os.listdir(test_folder):
+   #       os.remove(os.path.join(test_folder, f))
+   #    savePath = os.path.join(test_folder, "testing.jpg")
+   #    cv2.imwrite(savePath, image)
+   #box_result_folder = "data/io/result/box"
+   med_result_folder = "data/io/result/med"
+   for f in os.listdir(med_result_folder):
+      os.remove(os.path.join(med_result_folder, f))
+   # for f in os.listdir(box_result_folder):
+   #    os.remove(os.path.join(box_result_folder, f))
    processImage.run_pipeline_live()
-   file_names = (os.listdir(result_folder))
+   med_file_names = (os.listdir(med_result_folder))
+   #box_file_names = (os.listdir(box_result_folder))
    i = 1
    medBox = []
-   for file in file_names:
+   for file in med_file_names:
       if ".txt" in file:
-         with open(os.path.join(result_folder, file)) as f:
+         with open(os.path.join(med_result_folder, file)) as f:
             lines = f.readlines()
          med_list = []
          for line in lines:
             text_splits = line.split()
+            #print(text_splits)
             available = False
             #box = {}
             for each_med in med_list:
@@ -105,7 +160,7 @@ def detectMed():
          medBox.append(resultMed)
          #medBox.append(med_list)
          i = i + 1
-   print(medBox)
+   #print(medBox)
    with open(f"saved_data/{barcodeData}") as f:
       ground_truth = json.load(f)
    gtruth = []
@@ -136,12 +191,13 @@ def detectMed():
 
       result.append(interResult)
    #print("result is", result)
-   print("Ground Truth", gtruth)
+   #print("Ground Truth", gtruth)
    for i, test in enumerate(result):
       medBox[i]["result"] = result[i]
    # print(gtruth)
    # print(ground_truth)
-   return { "groundtruth": gtruth, "prediction": medBox, "result":result, "patientID":barcodeData}
+   # return { "groundtruth": gtruth, "prediction": medBox, "result":result, "patientID":barcodeData}
+   return { "prediction": medBox}
 
 @app.route('/saveData', methods = ['POST', 'GET'])
 def saveData():
@@ -174,7 +230,7 @@ def loadPatientFile():
    data = ""
    with open(f"saved_data/{fileName}") as f:
             data = json.load(f)
-   print(fileName, data)
+   #print(fileName, data)
    return {fileName: data}
 
 @app.route('/deletePatientFile', methods = ['POST', 'GET'])

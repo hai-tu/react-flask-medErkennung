@@ -50,10 +50,14 @@ PATHS["io_result_med_path"] = out_med_path
 PARAMS = {
     "mode": "test",  # Set pipeline mode; "train" or "test"
     # These params are used for center cropping
-    "translation_x": -100,
-    "translation_y": 100,
-    "crop_width": 0.65,
-    "crop_height": 0.4,
+    #"translation_x": -100,
+    #"translation_y": 100,
+    #"crop_width": 0.65,
+    #"crop_height": 0.4,
+    "translation_x": 0,
+    "translation_y": 0,
+    "crop_width": 0.90,
+    "crop_height": 0.75,
 }
 
 
@@ -80,21 +84,40 @@ CLASS_COLORS = {
 
 # Original class names and their according number
 # Box and meds are handed separately that's why there are two 0 classes.
+# CLASS_NAMES = {
+#     "box": 0,
+#     "weichkapsel_transparent": 0,
+#     "weichkapsel_braun": 1,
+#     "kapsel_weiss_gelb_orange": 2,
+#     "kapsel_weiss_gelb": 3,
+#     "kapsel_weiss": 4,
+#     "dragee_blau": 5,
+#     "dragee_pink": 6,
+#     "tablette_beige_oval": 7,
+#     "tablette_weiss_oval": 8,
+#     "tablette_braun_rund": 9,
+#     "tablette_blau_rund": 10,
+#     "tablette_weiss_zink": 11,
+#     "tablette_weiss_10mm": 12,
+#     "tablette_weiss_8mm": 13,
+#     "tablette_weiss_7mm": 14,
+# }
+
 CLASS_NAMES = {
     "box": 0,
-    "weichkapsel_transparent": 0,
-    "weichkapsel_braun": 1,
-    "kapsel_weiss_gelb_orange": 2,
+    "dragee_blau": 0,
+    "dragee_pink": 1,
+    "kapsel_weiss": 2,
     "kapsel_weiss_gelb": 3,
-    "kapsel_weiss": 4,
-    "dragee_blau": 5,
-    "dragee_pink": 6,
-    "tablette_beige_oval": 7,
-    "tablette_weiss_oval": 8,
-    "tablette_braun_rund": 9,
-    "tablette_blau_rund": 10,
+    "kapsel_weiss_gelb_orange": 4,
+    "tablette_beige_oval": 5,
+    "tablette_blau_rund": 6,
+    "tablette_braun_rund": 7,
+    "tablette_weiss_10mm": 8,
+    "tablette_weiss_8mm": 9,
+    "tablette_weiss_7mm": 10,
     "tablette_weiss_zink": 11,
-    "tablette_weiss_10mm": 12,
-    "tablette_weiss_8mm": 13,
-    "tablette_weiss_7mm": 14,
+    "tablette_weiss_oval": 12,
+    "weichkapsel_braun": 13,
+    "weichkapsel_transparent": 14,
 }
