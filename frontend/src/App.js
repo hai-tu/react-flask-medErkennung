@@ -4,6 +4,7 @@ import React, {useState, useEffect, useRef} from 'react';
 //import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import './App.css';
+import SimpleTabs from './Tabs';
 import Home from './views/Home/Home';
 import GroundTruth from './views/GroundTruth/GroundTruth';
 import NavBar from './components/NavBar/NavBar';
@@ -113,30 +114,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* <AppBar position="static">
-        <Toolbar>
-          <div>
-            <Router>
-              <NavBar />
-              <Switch>
-                <Route exact path="/Home" component={Home} />
-                <Route exact path="/">
-                  <Redirect to="/Home" />
-                </Route>
-                <Route exact path="/About" component={About} />
-              </Switch>
-            </Router>
-          </div>
-          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu"s>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" className={classes.title}>
-            Med Erkennung
-          </Typography>
-          <Button color="inherit">Login</Button>
-        </Toolbar>
-      </AppBar> */}
-      <Router>
+      {/* <Router>
         <NavBar />
         <Switch>
           <Route exact path="/Home" component={Home} />
@@ -145,7 +123,8 @@ function App() {
           </Route>
           <Route exact path="/About" component={GroundTruth} />
         </Switch>
-      </Router>
+      </Router> */}
+      <SimpleTabs/>
     </div>
   );
 }

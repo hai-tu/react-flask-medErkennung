@@ -4,24 +4,8 @@ import { Button, Box, Typography, Grid, Paper} from '@material-ui/core'
 // import MenuIcon from '@material-ui/icons/Menu';
 import { makeStyles } from '@material-ui/core/styles';
 import './Home.css';
-
-// const med_list_name = [
-//   "weichkapsel_transparent",
-//   "weichkapsel_braun",
-//   "kapsel_weiss_gelb_orange",
-//   "kapsel_weiss_gelb",
-//   "kapsel_weiss",
-//   "dragee_blau",
-//   "dragee_pink",
-//   "tablette_beige_oval",
-//   "tablette_weiss_oval",
-//   "tablette_braun_rund",
-//   "tablette_blau_rund",
-//   "tablette_weiss_zink",
-//   "tablette_weiss_10mm",
-//   "tablette_weiss_8mm",
-//   "tablette_weiss_7mm"
-// ]
+import EnhancedTable from './MedTable';
+import Notification from './Notification';
 
 const med_list_name = [
   "Dragee_blau",
@@ -82,7 +66,9 @@ function Home() {
   const imageRef = useRef();
   const [gTruth, setGTruth] = useState([]);
   const [result, setResult] = useState([]);
-  const [qrCode, setqrCode] = useState('Ground Truth');
+  const [qrCode, setqrCode] = useState('Ground_Truth');
+  const [isScanned, setIsScanned] = useState(false)
+  const [notify, setNotify] = useState({ isOpen: false, message: '', type: '' })
 
   // useEffect(() => {
   //   fetch('/time').then(res => res.json()).then(data => {
@@ -174,6 +160,13 @@ function Home() {
       setGTruth(text.groundtruth)
       // setResult(text.prediction)
       setqrCode(text.patientID)
+      setIsScanned(true)
+      setNotify({
+        isOpen: true,
+        message: 'Patient Data Scanned Successfully',
+        type: 'success'
+      })
+
       // console.log(text.prediction)
       // console.log(text.result)
     } else {
@@ -224,18 +217,12 @@ function Home() {
 
     context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
     imageRef.current = await new Promise(resolve => photoRef.current.toBlob(resolve))
-      const formData = new FormData();
-      formData.append('image', imageRef.current);
-      const response = await fetch('/detectMed', {
-        method: "POST",
-        body: formData,
-      })
-
-
-    // const response = await fetch('/detectMed', {
-    //   method: "GET"
-    //   //body: formData,
-    // })
+    const formData = new FormData();
+    formData.append('image', imageRef.current);
+    const response = await fetch('/detectMed', {
+      method: "POST",
+      body: formData,
+    })
 
     if (response.status === 200) {
       // setGTruth([])
@@ -244,10 +231,32 @@ function Home() {
       // const qrCodeID = Object.keys(text)[0]
       // setqrCode(qrCodeID)
       // setGTruth(text.groundtruth)
-      setResult(text.prediction)
-      // setqrCode(text.patientID)
-      // console.log(text.prediction)
-      // console.log(text.result)
+      if (text.error) {
+        // alert(text.error)
+        setNotify({
+          isOpen: true,
+          message: text.error,
+          type: 'error'
+        })
+      } else {
+        // setResult(text.prediction)
+        // alert(text.message)
+        if (text.correct) {
+          setNotify({
+            isOpen: true,
+            message: text.message,
+            type: 'success'
+          })
+        } else {
+          setNotify({
+            isOpen: true,
+            message: text.message,
+            type: 'error'
+          })
+        }
+        setGTruth(text.prediction)
+        
+      }
     } else {
       alert("somtething wrong");
     }
@@ -264,13 +273,19 @@ function Home() {
       <Box bgcolor="lightblue" display="flex" flexDirection="row">
         <div className="Live-Section" >
           <video className="streaming" ref={videoRef} onCanPlay={() => playCameraStream()} id="video" />
-          <Button className={classes.button} variant="contained" color="primary" onClick={getGroundTruth}>Patient Med</Button>
+          <Button className={classes.button} variant="contained" color="primary" onClick={getGroundTruth}>Patient Data</Button>
           {/*<Button className={classes.button} variant="contained" color="primary" onClick={takePhoto}>Take Picture</Button>*/}
-          <Button className={classes.button} variant="contained" color="primary" onClick={detectMed}>Detect</Button>
+          {isScanned ? <Button className={classes.button} variant="contained" color="primary" onClick={detectMed}>Detect</Button> : <Button className={classes.button} variant="contained" color="primary" onClick={detectMed} disabled='true'>Detect</Button>}
+          {/* <Button className={classes.button} variant="contained" color="primary" onClick={detectMed} disabled='true'>Detect</Button> */}
           <canvas className="streaming" ref={photoRef} />
         </div>
         <div className="Result" >
-          <div className="GroundTruth">
+          <Notification notify={notify} setNotify={setNotify} />
+          {isScanned ? <EnhancedTable qrCode={qrCode} planung={gTruth}/> : <Typography variant="h6" className={classes.title}>
+              Please Scan Patient ID
+            </Typography>}
+          {/* <EnhancedTable qrCode={qrCode}/> */}
+          {/* <div className="GroundTruth">
             <Typography variant="h6" className={classes.title}>
               {qrCode}
             </Typography>
@@ -301,7 +316,7 @@ function Home() {
                 </Grid>
               ))}
             </Grid>
-          </div>
+          </div> */}
         </div>
       </Box>
     </div>
