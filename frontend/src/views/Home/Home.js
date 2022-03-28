@@ -1,59 +1,15 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Button, Box, Typography, Grid, Paper} from '@material-ui/core'
-// import { Container, AppBar, Toolbar, IconButton} from '@material-ui/core';
-// import MenuIcon from '@material-ui/icons/Menu';
+import {Button, Box, Typography} from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
 import './Home.css';
 import EnhancedTable from './MedTable';
 import Notification from './Notification';
-
-const med_list_name = [
-  "Dragee_blau",
-  "Dragee_pink",
-  "Kapsel_weiss",
-  "kapsel_weiss_gelb",
-  "Kapsel_weiss_gelb_orange",
-  "Tablette_beige_oval",
-  "Tablette_blau_rund",
-  "Tablette_braun_rund",
-  "Tablette_weiss_10mm",
-  "Tablette_weiss_8mm",
-  "Tablette_weiss_7mm",
-  "Tablette_weiss_Zink",
-  "Tablette_weiss_oval",
-  "Weichkapsel_braun",
-  "Weichkapsel_transparent"
-]
 
 const useStyles = makeStyles((theme) => ({
   button: {
     margin: '0 0 1em 0',
     width: '50%',
     height:'40px',
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  forGrid: {
-    margin: '0.5em 0 0 0',
-  },
-  gridItem: {
-    margin: '0.5em 0 0 0',
-    width: '500px',
-    height: 300,
-  },
-  paper: (props) => ({
-    height: 140,
-    width: '80%',
-    // background: 'lightgreen',
-    // border: `5px solid ${props.color}`,
-    marginBottom: 10
-  }),
-  gPaper: {
-    height: 140,
-    width: '80%',
-    // border: '5px solid white',
-    marginBottom: 10
   },
   title: {
     flexGrow: 1,
@@ -65,16 +21,11 @@ function Home() {
   const photoRef = useRef();
   const imageRef = useRef();
   const [gTruth, setGTruth] = useState([]);
-  const [result, setResult] = useState([]);
+  const [infor, setInfor] = useState([]);
+  // const [result, setResult] = useState([]);
   const [qrCode, setqrCode] = useState('Ground_Truth');
   const [isScanned, setIsScanned] = useState(false)
   const [notify, setNotify] = useState({ isOpen: false, message: '', type: '' })
-
-  // useEffect(() => {
-  //   fetch('/time').then(res => res.json()).then(data => {
-  //     setCurrentTime(data.time);
-  //   });
-  // }, []);
 
   useEffect(() => {
     async function getCameraStream() {
@@ -82,7 +33,7 @@ function Home() {
         audio: false,
         // video: true,
         video: {
-          width: { ideal: 1920},
+          width: {ideal: 1920},
           height: {ideal: 1080}
         }
       });
@@ -101,6 +52,11 @@ function Home() {
     }
   };
 
+  /**
+   * This is the function for "Patient Data" button, image is taken and
+   * send to backend. Then the patient information and ground truth is
+   * sent back to frontend, and store in gTruth and infor variable.
+   */
   async function getGroundTruth() {
     // if (imageRef.current) {
     //   const formData = new FormData();
@@ -139,25 +95,22 @@ function Home() {
 
     const formData = new FormData();
     formData.append('image', imageRef.current);
-    console.log("hier")
+    // Image is send to backend hier.
     const response = await fetch('/getGroundTruth', {
       method: "POST",
       body: formData,
     })
 
-
-    // const response = await fetch('/detectMed', {
-    //   method: "GET"
-    //   //body: formData,
-    // })
-
+    // Result sent back from backend is processed hier.
     if (response.status === 200) {
       setGTruth([])
-      setResult([])
+      setInfor([])
+      // setResult([])
       const text = await response.json()
       // const qrCodeID = Object.keys(text)[0]
       // setqrCode(qrCodeID)
       setGTruth(text.groundtruth)
+      setInfor(text.patient_info)
       // setResult(text.prediction)
       setqrCode(text.patientID)
       setIsScanned(true)
@@ -174,20 +127,26 @@ function Home() {
     }
   }
 
-  const takePhoto = () => {
-    const context = photoRef.current.getContext('2d');
-    const {videoWidth, videoHeight} = videoRef.current;
+  // console.log(infor)
+  // const takePhoto = () => {
+  //   const context = photoRef.current.getContext('2d');
+  //   const {videoWidth, videoHeight} = videoRef.current;
 
-    photoRef.current.width = videoWidth;
-    photoRef.current.height = videoHeight;
+  //   photoRef.current.width = videoWidth;
+  //   photoRef.current.height = videoHeight;
 
-    context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
+  //   context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
 
-    photoRef.current.toBlob((blob) => {
-      imageRef.current = blob;
-    })
-  }
+  //   photoRef.current.toBlob((blob) => {
+  //     imageRef.current = blob;
+  //   })
+  // }
 
+  /**
+   * This is the function for "Detect" button, the image on camera is 
+   * captured and sent to back end for processing. Then the compared
+   * result is sent back to frontend and displayed in the "Planung" table.
+   */
   async function detectMed() {
     // if (imageRef.current) {
     //   const formData = new FormData();
@@ -226,7 +185,7 @@ function Home() {
 
     if (response.status === 200) {
       // setGTruth([])
-      setResult([])
+      // setResult([])
       const text = await response.json()
       // const qrCodeID = Object.keys(text)[0]
       // setqrCode(qrCodeID)
@@ -262,11 +221,11 @@ function Home() {
     }
   }
 
-  console.log("result is", result)
-  const props = {
-    color: 'red'
-  }
-  const classes = useStyles(props);
+  // console.log("result is", result)
+  // const props = {
+  //   color: 'red'
+  // }
+  const classes = useStyles();
 
   return (
     <div className="App">
@@ -281,42 +240,9 @@ function Home() {
         </div>
         <div className="Result" >
           <Notification notify={notify} setNotify={setNotify} />
-          {isScanned ? <EnhancedTable qrCode={qrCode} planung={gTruth}/> : <Typography variant="h6" className={classes.title}>
+          {isScanned ? <EnhancedTable qrCode={qrCode} planung={gTruth} info={infor} /> : <Typography variant="h6" className={classes.title}>
               Please Scan Patient ID
             </Typography>}
-          {/* <EnhancedTable qrCode={qrCode}/> */}
-          {/* <div className="GroundTruth">
-            <Typography variant="h6" className={classes.title}>
-              {qrCode}
-            </Typography>
-            <Grid container direction="column" >
-              {gTruth.map((value) => (
-                <Grid key={value} item>
-                  <Paper className={classes.gPaper} >
-                    <ul>
-                      {value.map(name => <li key={name.id}> {med_list_name[name.id] + ":" + name.amount} </li>)}
-                    </ul>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </div>
-          <div className="Prediction">
-            <Typography variant="h6" className={classes.title}>
-              Detection
-            </Typography>
-            <Grid container direction="column" >
-              {result.map((value) => (
-                <Grid key={value} item>
-                  <Paper className={classes.paper} style={ value.result ? { background: 'lightgreen' } : { background: 'orangered' }}>
-                    <ul>
-                      {value.detectedMed.map(name => <li key={name.id}> {med_list_name[name.id] + ":" + name.amount} </li>)}
-                    </ul>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </div> */}
         </div>
       </Box>
     </div>

@@ -11,6 +11,26 @@ import os
 
 app = Flask(__name__)
 
+# Med list name with order according to yolo data format order.
+med_list_index = [
+  "Dragee_blau",
+  "Dragee_pink",
+  "Kapsel_weiss",
+  "kapsel_weiss_gelb",
+  "Kapsel_weiss_gelb_orange",
+  "Tablette_beige_oval",
+  "Tablette_blau_rund",
+  "Tablette_braun_rund",
+  "Tablette_weiss_10mm",
+  "Tablette_weiss_8mm",
+  "Tablette_weiss_7mm",
+  "Tablette_weiss_Zink",
+  "Tablette_weiss_oval",
+  "Weichkapsel_braun",
+  "Weichkapsel_transparent"
+]
+
+# Med list name with dose of each med and the order according to yolo data format order.
 med_list_name = [
   ["Dragee_blau", 20],
   ["Dragee_pink", 40],
@@ -29,39 +49,8 @@ med_list_name = [
   ["Weichkapsel_transparent", 120]
 ]
 
+# Time taken list to get index.
 time_taken = ['morgens', 'mittags', 'abends', 'nachts']
-
-@app.route('/detect', methods = ['POST', 'GET'])
-def detect():
-   if (request.files['image']):
-      file = request.files['image']
-      image = Image.open(file)
-      image = image.convert('RGB')
-      image = numpy.array(image)
-      image = image[:, :, ::-1].copy()
-      cv2.imwrite("testing.jpg", image)
-      barcodes = pyzbar.decode(image)
-      barcodeData="PatientID"
-      for barcode in barcodes:
-         barcodeData = barcode.data.decode("utf-8")
-         barcodeType = barcode.type
-         print(barcodeData)
-         #print("[INFO] Found {} barcode: {}".format(barcodeType, barcodeData))
-      filenames = os.listdir("saved_data")
-      data = {}
-      if barcodeData in filenames:
-         with open(f"saved_data/{barcodeData}") as f:
-            data = json.load(f)
-      else:
-         with open("saved_data/empty") as f:
-            data = json.load(f)
-   return {barcodeData: data}
-
-def getAllMedID(medBox):
-   result = []
-   for med in medBox:
-      result.append(med["id"])
-   return result
 
 barcodeData = "Patient1"
 @app.route('/getGroundTruth', methods = ['POST', 'GET'])
@@ -85,12 +74,11 @@ def getGroundTruth():
    #       print(barcodeData)
       
    with open(f"saved_data/{barcodeData}/Planung/plan.txt", "r") as f:
-    
       lines = f.readlines()
    lines = [line.replace("\n", "") for line in lines]
-   lines = [line.replace(" ", "") for line in lines]
+   # lines = [line.replace(" ", "") for line in lines]
    result = []
-   #print(lines)
+   # print(lines)
    for line in lines:
       med = line.split(",")
       #print(med)
@@ -99,13 +87,30 @@ def getGroundTruth():
       med[2] = time_taken[int(med[2])]
       med.append(True)
       result.append(med)
-   return { "groundtruth": result, "patientID":barcodeData}
+   with open(f"saved_data/{barcodeData}/Information/info.json", "r") as f:
+      patient_info = json.load(f)
+      print(patient_info)
+   return { "groundtruth": result, "patientID":barcodeData, "patient_info":patient_info}
 
 @app.route('/detectMed', methods = ['POST', 'GET'])
 def detectMed():
 
    global barcodeData
    print(barcodeData)
+
+   # if (request.files['image']):
+   #    file = request.files['image']
+   #    #file = request.files['image']
+   #    image = Image.open(file)
+   #    image = image.convert('RGB')
+   #    image = numpy.array(image)
+   #    image = image[:, :, ::-1].copy()
+   #    test_folder = "data/io/in/test"
+   #    for f in os.listdir(test_folder):
+   #       os.remove(os.path.join(test_folder, f))
+   #    savePath = os.path.join(test_folder, "testing.jpg")
+   #    cv2.imwrite(savePath, image)
+   
    med_result_folder = "data/io/result/med"
    for f in os.listdir(med_result_folder):
       os.remove(os.path.join(med_result_folder, f))
@@ -143,7 +148,7 @@ def detectMed():
    with open(f"saved_data/{barcodeData}/Planung/plan.txt", "r") as f:
       lines = f.readlines()
       lines = [line.replace("\n", "") for line in lines]
-      lines = [line.replace(" ", "") for line in lines]
+      # lines = [line.replace(" ", "") for line in lines]
       #print(lines)
       for line in lines:
          med = line.split(",")
@@ -173,49 +178,28 @@ def detectMed():
 
 @app.route('/saveData', methods = ['POST', 'GET'])
 def saveData():
-   data = json.loads(request.data)
-   #print(data["column-2"])
-   print(data.keys())
-   dictKeys = list(data.keys())
-   fileName = dictKeys[0]
-   data = data[fileName]
-   with open(f'saved_data/{fileName}', 'w') as f:
-      json.dump(data, f)
-   result = []
-   for f in os.listdir("saved_data"):
-      if f != "empty":
-         result.append(f)
-   return {"list": result}
+   global barcodeData
+   try:
 
-@app.route('/getPatientID', methods = ['GET'])
-def getPatientID():
-   result = []
-   for f in os.listdir("saved_data"):
-      if f != "empty":
-         result.append(f)
-   return {"list": result}
+      data = json.loads(request.data)
+      result = []
+      for med in data["meds"]:
+         med_plan = []
+         med_plan.append(str(med_list_index.index(med["name"])))
+         med_plan.append(str(med["dose"]))
+         med_plan.append(str(time_taken.index(med["time"])))
+         result.append(med_plan)
 
-@app.route('/loadPatientFile', methods = ['POST', 'GET'])
-def loadPatientFile():
-   jsonData = json.loads(request.data)
-   fileName = jsonData["fileName"]
-   data = ""
-   with open(f"saved_data/{fileName}") as f:
-            data = json.load(f)
-   #print(fileName, data)
-   return {fileName: data}
+      os.remove(f"saved_data/{barcodeData}/Planung/plan.txt")
+      with open(f"saved_data/{barcodeData}/Planung/plan.txt", "a") as file:
+         for med in result:
+            med = ','.join(med) + '\n'
+            file.writelines(med)
+      print("hiere")
+      return {"success": "File is saved successfully"}
+   except:
 
-@app.route('/deletePatientFile', methods = ['POST', 'GET'])
-def deletePatientFile():
-   jsonData = json.loads(request.data)
-   files = jsonData["fileName"]
-   result = []
-   for file in os.listdir("saved_data"):
-      if file not in files:# and file != "empty":
-         result.append(file)
-      else:
-         os.remove(f"saved_data/{file}")
-   return {"list": result}
+      return {"error": "File cannot be saved"}
 
 if __name__ == '__main__':
    host = "127.0.0.1"

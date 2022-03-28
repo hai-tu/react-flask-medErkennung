@@ -19,37 +19,39 @@ import Tooltip from '@material-ui/core/Tooltip';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import AddBox from '@material-ui/icons/AddBox'
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
-// import Notification from './Notification';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import TextField from '@material-ui/core/TextField';
+import SaveIcon from '@material-ui/icons/Save';
+import Notification from './Notification';
 
 
-// function createData(name, calories, fat, carbs, protein) {
-//   return { name, calories, fat, carbs, protein };
-// }
+const med_list_name = [
+  "Dragee_blau",
+  "Dragee_pink",
+  "Kapsel_weiss",
+  "kapsel_weiss_gelb",
+  "Kapsel_weiss_gelb_orange",
+  "Tablette_beige_oval",
+  "Tablette_blau_rund",
+  "Tablette_braun_rund",
+  "Tablette_weiss_10mm",
+  "Tablette_weiss_8mm",
+  "Tablette_weiss_7mm",
+  "Tablette_weiss_Zink",
+  "Tablette_weiss_oval",
+  "Weichkapsel_braun",
+  "Weichkapsel_transparent"
+]
+
 function createData(name, dose, time, correct) {
   return {name, dose, time, correct};
 }
-
-// const rows = [
-//   createData("Dragee_blau", 50, "morgens"),
-//   createData("Dragee_pink", 100, "mittags"),
-//   createData("Kapsel_weiss", 20, "morgens"),
-//   createData("kapsel_weiss_gelb", 30, "abends"),
-//   createData("Kapsel_weiss_gelb_orange", 70, "nachts"),
-//   createData("Tablette_beige_oval", 10, "morgens"),
-//   createData("Tablette_blau_rund", 200, "mittags"),
-//   createData("Tablette_braun_rund", 130, "nachts"),
-//   createData("Tablette_weiss_10mm", 140, "abends"),
-//   createData("Tablette_weiss_8mm", 150, "morgens"),
-//   createData("Tablette_weiss_7mm", 150, "mittags"),
-//   createData("Tablette_weiss_Zink", 10, "nachts"),
-//   createData("Tablette_weiss_oval", 25, "morgens"),
-//   createData("Weichkapsel_braun", 26, "nachts"),
-//   createData("Weichkapsel_transparent", 50, "abends"),
-// ];
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -136,67 +138,6 @@ EnhancedTableHead.propTypes = {
   rowCount: PropTypes.number.isRequired,
 };
 
-const useToolbarStyles = makeStyles((theme) => ({
-  root: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(1),
-  },
-  highlight:
-    theme.palette.type === 'light'
-      ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
-        }
-      : {
-          color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark,
-        },
-  title: {
-    flex: '1 1 100%',
-  },
-}));
-
-const EnhancedTableToolbar = (props) => {
-  const classes = useToolbarStyles();
-  const { numSelected } = props;
-
-  return (
-    <Toolbar
-      className={clsx(classes.root, {
-        [classes.highlight]: numSelected > 0,
-      })}
-    >
-      {numSelected > 0 ? (
-        <Typography className={classes.title} color="inherit" variant="subtitle1" component="div">
-          {numSelected} selected
-        </Typography>
-      ) : (
-        <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-          Planung
-        </Typography>
-      )}
-
-      {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete">
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton aria-label="filter list">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Toolbar>
-  );
-};
-
-EnhancedTableToolbar.propTypes = {
-  numSelected: PropTypes.number.isRequired,
-};
-
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
@@ -222,7 +163,7 @@ const useStyles = makeStyles((theme) => ({
     width: 1,
   },
   info_section: {
-    width: '50%',
+    width: '70%',
     height: '100%',
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
@@ -230,16 +171,47 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'row',
     textAlign: 'left',
   },
+
+  add_section: {
+    width: '80%',
+    height: '100%',
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    display: 'flex',
+    flexDirection: 'row',
+    // textAlign: 'left',
+  },
+
   title: {
     fontSize: 14,
   },
   pos: {
     marginBottom: 12,
   },
+  toolbar_root: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(1),
+  },
+  toolbar_highlight:
+    theme.palette.type === 'light'
+      ? {
+          color: theme.palette.secondary.main,
+          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+        }
+      : {
+          color: theme.palette.text.primary,
+          backgroundColor: theme.palette.secondary.dark,
+        },
+  toolbar_title: {
+    flex: '1 1 100%',
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
 }));
 
 export default function EnhancedTable(props) {
-  // console.log('test props',props.planung)
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('calories');
@@ -247,34 +219,47 @@ export default function EnhancedTable(props) {
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  // const [notify, setNotify] = React.useState({ isOpen: false, message: '', type: '' })
-  const rows = [];
-  for (const element of props.planung) {
-    rows.push(createData(element[0], element[1], element[2], element[3]))
-  }
-  
+  const [rowElem, setRowElem] = React.useState([]);
+  const [med, setMed] = React.useState('');
+  const [dose, setDose] = React.useState('');
+  const [time, setTime] = React.useState('');
+  const [infor, setInfor] = React.useState({})
+  const [notify, setNotify] = React.useState({ isOpen: false, message: '', type: '' })
 
+  
+  // console.log(props.info)
+  React.useEffect(() => {
+    const rows = [];
+    for (const element of props.planung) {
+      rows.push(createData(element[0], element[1], element[2], element[3]))
+    }
+    setRowElem(rows)
+    setInfor(props.info)
+  }, [props]);
+  // console.log(rowElem)
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
+  // console.log("infor hier", infor)
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map((n) => n.name);
+      const newSelecteds = rowElem.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  const handleClick = (event, name, time) => {
+    const main_key = name + ';' +  time
+    const selectedIndex = selected.indexOf(main_key);
+    // console.log("selectedIndex", selectedIndex)
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, main_key);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -285,7 +270,7 @@ export default function EnhancedTable(props) {
         selected.slice(selectedIndex + 1),
       );
     }
-
+    // console.log(newSelected)
     setSelected(newSelected);
   };
 
@@ -304,37 +289,174 @@ export default function EnhancedTable(props) {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-  const patient_data = "./saved_data/" + props.qrCode
-  // console.log('patient data', patient_data)
-  // const avatar_path = patient_data + "/Avatar/avatar.png"
-  // const image = require(avatar_path)
+  const handleDelete = () => {
+
+    const newPlanung = []
+    for (var i = 0; i < rowElem.length; i++) {
+      const keyWord = rowElem[i].name + ';' + rowElem[i].time
+
+      if (!selected.includes(keyWord)) {
+        newPlanung.push(rowElem[i])
+      }
+    }
+    // console.log(newPlanung)
+    setRowElem(newPlanung)
+    setSelected([])
+  }
+  
+  const handleMedChange = (event) => {
+    setMed(event.target.value);
+  };
+
+  const handleDoseChange = (event) => {
+    setDose(event.target.value);
+  };
+
+  const handleTimeChange = (event) => {
+    setTime(event.target.value);
+  };
+
+  const handleAdd = () => {
+    if (med === '' || dose === '' || time === '') {
+      alert("Please input all required information")
+      return
+    }
+    const newPlanung = rowElem
+    const addElem = createData(med, dose, time, true)
+    newPlanung.push(addElem)
+    setSelected([])
+    setRowElem(newPlanung)
+  }
+
+  async function handleSaveData() {
+    // const formData = new FormData();
+    // const med_table = rowElem
+    const med_data = {}
+    med_data['meds'] = rowElem
+    // formData.append('data', med_table);
+    const response = await fetch('/saveData', {
+      method: "POST",
+      header: {'Content-Type': 'application/json'},
+      body: JSON.stringify(med_data)
+    })
+
+    if (response.status === 200) {
+      // setGTruth([])
+      // setResult([])
+      const text = await response.json()
+      // console.log(text)
+      if (text.error) {
+        setNotify({
+          isOpen: true,
+          message: text.error,
+          type: 'error'
+        })
+      } else {
+        // console.log("get hier")
+        setNotify({
+          isOpen: true,
+          message: text.success,
+          type: 'success'
+        })
+      }
+      //   setGTruth(text.prediction)
+        
+      // }
+    } else {
+      alert("somtething wrong");
+    }
+  }
+
+  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rowElem.length - page * rowsPerPage);
+
   return (
     <div className={classes.root}>
         <Paper className={classes.info_section}>
-          {/* <img src={require("./saved_data/Patient1/Avatar/avatar.png")} width={250} height={250} alt="Logo" /> */}
-          {/* <img src={image} width={250} height={250} alt="Logo" /> */}
           <Card className={classes.root}>
             <CardContent>
               <Typography variant="h5" component="h2">
-                NAME
+                {infor.name}
               </Typography>
               <br/>
               <Typography className={classes.pos} color="textSecondary">
-                Stationäre Pflege Seit?
+                Stationäre Pflege Seit: {infor.admission_time}
               </Typography>
               <Typography variant="body2" component="p">
-                Wohnbereich
+                Wohnbereich: {infor.room}
               </Typography>
               <Typography variant="body2" component="p">
-                Bemerkung
+                Bemerkung: {infor.remark}
               </Typography>
             </CardContent>
           </Card> 
         </Paper>
+        <Notification notify={notify} setNotify={setNotify} />
+        <Paper className={classes.add_section}>
+          <FormControl className={classes.formControl}>
+            <InputLabel id="demo-simple-select-label">Medicine</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={med}
+              onChange={handleMedChange}
+            >
+              {med_list_name.map((name) => (
+                <MenuItem value={name}>{name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField id="filled-basic" label="Dosierung (mg)" variant="filled" onChange={handleDoseChange} />
+          <FormControl className={classes.formControl}>
+            <InputLabel id="demo-simple-select-label">Time</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={time}
+              onChange={handleTimeChange}
+            >
+              <MenuItem value={'morgens'}>morgens</MenuItem>
+              <MenuItem value={'mittags'}>mittags</MenuItem>
+              <MenuItem value={'abends'}>abends</MenuItem>
+              <MenuItem value={'nachts'}>nachts</MenuItem>
+            </Select>
+          </FormControl>
+          <Tooltip title="Add New Medicine">
+            <IconButton aria-label="Add New Medicine" onClick={handleAdd}>
+              <AddBox/>
+            </IconButton>
+          </Tooltip>
+        </Paper>
 
         <Paper className={classes.table_section}>
-          <EnhancedTableToolbar numSelected={selected.length} />
+          <Toolbar
+            className={clsx(classes.toolbar_root, {
+              [classes.toolbar_highlight]: selected.length > 0,
+            })}
+          >
+            {selected.length > 0 ? (
+              <Typography className={classes.toolbar_title} color="inherit" variant="subtitle1" component="div">
+                {selected.length} selected
+              </Typography>
+            ) : (
+              <Typography className={classes.toolbar_title} variant="h6" id="tableTitle" component="div">
+                Planung
+              </Typography>
+            )}
+
+            {selected.length > 0 ? (
+              <Tooltip title="Delete">
+                <IconButton aria-label="delete" onClick={handleDelete}>
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Add New Medicine">
+                <IconButton aria-label="Add New Medicine" onClick={handleSaveData}>
+                  <SaveIcon/>
+                </IconButton>
+              </Tooltip>
+            )}
+          </Toolbar>
           <TableContainer>
             <Table
               className={classes.table}
@@ -349,19 +471,20 @@ export default function EnhancedTable(props) {
                 orderBy={orderBy}
                 onSelectAllClick={handleSelectAllClick}
                 onRequestSort={handleRequestSort}
-                rowCount={rows.length}
+                rowCount={rowElem.length}
               />
               <TableBody>
-                {stableSort(rows, getComparator(order, orderBy))
+                {stableSort(rowElem, getComparator(order, orderBy))
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
-                    const isItemSelected = isSelected(row.name);
+                    const isItemSelected = isSelected(row.name + ';' +  row.time);
+                    // const isItemSelected = isSelected(row.name);
                     const labelId = `enhanced-table-checkbox-${index}`;
 
                     return (
                       <TableRow
                         hover
-                        onClick={(event) => handleClick(event, row.name)}
+                        onClick={(event) => handleClick(event, row.name, row.time)}
                         role="checkbox"
                         aria-checked={isItemSelected}
                         tabIndex={-1}
@@ -394,7 +517,7 @@ export default function EnhancedTable(props) {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={rows.length}
+            count={rowElem.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -405,7 +528,6 @@ export default function EnhancedTable(props) {
           control={<Switch checked={dense} onChange={handleChangeDense} />}
           label="Dense padding"
         />
-      {/* </div> */}
     </div>
   );
 }
