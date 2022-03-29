@@ -58,26 +58,6 @@ function Home() {
    * sent back to frontend, and store in gTruth and infor variable.
    */
   async function getGroundTruth() {
-    // if (imageRef.current) {
-    //   const formData = new FormData();
-    //   formData.append('image', imageRef.current);
-    //   const response = await fetch('/detectMed', {
-    //     method: "POST",
-    //     body: formData,
-    //   })
-
-    //   if (response.status === 200) {
-    //     const text = await response.json()
-    //     // const qrCodeID = Object.keys(text)[0]
-    //     // setqrCode(qrCodeID)
-    //     // setResult(text[qrCodeID])
-    //     console.log(text)
-    //   } else {
-    //     alert("somtething wrong");
-    //   }
-
-    //   //console.log(result)
-    // }
     const context = photoRef.current.getContext('2d');
     const {videoWidth, videoHeight} = videoRef.current;
 
@@ -85,12 +65,7 @@ function Home() {
     photoRef.current.height = videoHeight;
 
     context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
-    // //const formData = new FormData();
-    //
-    // photoRef.current.toBlob((blob) => {
-    //   // formData.append('image', blob);
-    //   imageRef.current = blob;
-    // })
+
     imageRef.current = await new Promise(resolve => photoRef.current.toBlob(resolve))
 
     const formData = new FormData();
@@ -107,11 +82,8 @@ function Home() {
       setInfor([])
       // setResult([])
       const text = await response.json()
-      // const qrCodeID = Object.keys(text)[0]
-      // setqrCode(qrCodeID)
       setGTruth(text.groundtruth)
       setInfor(text.patient_info)
-      // setResult(text.prediction)
       setqrCode(text.patientID)
       setIsScanned(true)
       setNotify({
@@ -127,47 +99,12 @@ function Home() {
     }
   }
 
-  // console.log(infor)
-  // const takePhoto = () => {
-  //   const context = photoRef.current.getContext('2d');
-  //   const {videoWidth, videoHeight} = videoRef.current;
-
-  //   photoRef.current.width = videoWidth;
-  //   photoRef.current.height = videoHeight;
-
-  //   context.drawImage(videoRef.current, 0, 0, videoWidth, videoHeight);
-
-  //   photoRef.current.toBlob((blob) => {
-  //     imageRef.current = blob;
-  //   })
-  // }
-
   /**
-   * This is the function for "Detect" button, the image on camera is 
+   * This is the function for "Detect" button, the image on camera is
    * captured and sent to back end for processing. Then the compared
    * result is sent back to frontend and displayed in the "Planung" table.
    */
   async function detectMed() {
-    // if (imageRef.current) {
-    //   const formData = new FormData();
-    //   formData.append('image', imageRef.current);
-    //   const response = await fetch('/detectMed', {
-    //     method: "POST",
-    //     body: formData,
-    //   })
-
-    //   if (response.status === 200) {
-    //     const text = await response.json()
-    //     // const qrCodeID = Object.keys(text)[0]
-    //     // setqrCode(qrCodeID)
-    //     // setResult(text[qrCodeID])
-    //     console.log(text)
-    //   } else {
-    //     alert("somtething wrong");
-    //   }
-
-    //   //console.log(result)
-    // }
     const context = photoRef.current.getContext('2d');
     const {videoWidth, videoHeight} = videoRef.current;
 
@@ -187,9 +124,6 @@ function Home() {
       // setGTruth([])
       // setResult([])
       const text = await response.json()
-      // const qrCodeID = Object.keys(text)[0]
-      // setqrCode(qrCodeID)
-      // setGTruth(text.groundtruth)
       if (text.error) {
         // alert(text.error)
         setNotify({
@@ -214,17 +148,13 @@ function Home() {
           })
         }
         setGTruth(text.prediction)
-        
+
       }
     } else {
       alert("somtething wrong");
     }
   }
 
-  // console.log("result is", result)
-  // const props = {
-  //   color: 'red'
-  // }
   const classes = useStyles();
 
   return (
@@ -233,9 +163,7 @@ function Home() {
         <div className="Live-Section" >
           <video className="streaming" ref={videoRef} onCanPlay={() => playCameraStream()} id="video" />
           <Button className={classes.button} variant="contained" color="primary" onClick={getGroundTruth}>Patient Data</Button>
-          {/*<Button className={classes.button} variant="contained" color="primary" onClick={takePhoto}>Take Picture</Button>*/}
           {isScanned ? <Button className={classes.button} variant="contained" color="primary" onClick={detectMed}>Detect</Button> : <Button className={classes.button} variant="contained" color="primary" onClick={detectMed} disabled='true'>Detect</Button>}
-          {/* <Button className={classes.button} variant="contained" color="primary" onClick={detectMed} disabled='true'>Detect</Button> */}
           <canvas className="streaming" ref={photoRef} />
         </div>
         <div className="Result" >
